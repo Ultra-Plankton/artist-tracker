@@ -1,0 +1,19 @@
+# Basic requirements for the Music Updater project
+
+# For Spotify API integration
+spotipy>=2.22.1
+
+# For Discord bot integration
+discord.py>=2.3.2
+
+# For data handling
+# pandas>=2.0.0
+
+# For making HTTP requests
+requests>=2.31.0
+
+# For environment variables
+python-dotenv>=1.0.0
+
+# For data persistence
+json

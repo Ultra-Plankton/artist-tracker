@@ -1,0 +1,133 @@
+# Music Updater Bot 🎵
+
+A Discord bot that tracks your favorite artists and sends notifications when they release new music via Spotify API integration.
+
+## Features
+
+- 🎵 **Track Multiple Artists** - Add/remove artists from your watchlist
+- 🔔 **Automatic Notifications** - Get notified of new releases twice daily (9 AM & 6 PM)
+- 🎯 **Smart Search** - Intelligent artist matching with exact name prioritization
+- 📊 **Rich Information** - See follower counts, genres, popularity, and release details
+- 🎧 **Spotify Integration** - Direct links to listen on Spotify
+- ⚙️ **Flexible Notifications** - Configure which channels receive notifications
+- 🎪 **Discord Slash Commands** - Modern Discord command interface
+
+## Discord Commands
+
+- `/music add <artist>` - Add an artist to track
+- `/music list` - Show all tracked artists
+- `/music remove <artist>` - Remove an artist from tracking
+- `/music check` - Manually check for new releases
+- `/music stats` - Show bot statistics
+- `/music setup [channel]` - Enable notifications (Admin only)
+- `/music unsetup [channel]` - Disable notifications (Admin only)
+- `/music help` - Show all commands
+
+## Getting Started
+
+### Prerequisites
+- Python 3.8 or higher
+- Spotify Developer Account (optional but recommended)
+
+### Setup
+
+1. **Clone and Install Dependencies**:
+   ```bash
+   pip install spotipy python-dotenv requests
+   ```
+
+2. **Spotify API Setup (Optional but Recommended)**:
+   - Go to https://developer.spotify.com/dashboard
+   - Create a new app
+   - Copy the Client ID and Client Secret
+   - Copy `.env.template` to `.env` and fill in your credentials:
+     ```
+     SPOTIFY_CLIENT_ID=your_client_id_here
+     SPOTIFY_CLIENT_SECRET=your_client_secret_here
+     ```
+
+3. **Run the Application**:
+   ```bash
+   python main.py
+   ```
+
+### Usage
+
+#### **Command Line Interface**
+```bash
+python main.py
+```
+
+The application provides an enhanced menu interface:
+1. **Add artist** - Search and add artists with Spotify data
+2. **List artists** - View all tracked artists with release info
+3. **Remove artist** - Remove an artist from tracking  
+4. **Check for new releases** - Find new releases from all artists
+5. **Show artist details** - Detailed view of any artist
+6. **Exit** - Close the application
+
+#### **Discord Bot Interface**
+```bash
+python discord_bot.py
+```
+
+**Discord Commands:**
+- `!music add <artist>` - Add an artist to track
+- `!music list` - Show all tracked artists
+- `!music check` - Check for new releases
+- `!music help` - Show all commands
+
+**Automatic Features:**
+- 🔔 **Twice Daily Checks** (9 AM & 6 PM)
+- 📢 **Rich Notifications** with album art and Spotify links
+- 🎯 **Smart Tracking** (separates albums from singles)
+
+> **See [DISCORD_SETUP.md](DISCORD_SETUP.md) for complete Discord bot setup instructions**
+
+## Features in Detail
+
+### With Spotify API:
+- 🔍 **Artist Search**: Finds artists on Spotify with official names
+- 📊 **Rich Data**: Follower counts, popularity, genres
+- 🆕 **Latest Releases**: Automatically tracks newest albums/singles
+- 🔄 **Release Monitoring**: Check all artists for new content
+
+### Without Spotify API:
+- 📝 **Offline Mode**: Still tracks artists manually
+- 💾 **Data Persistence**: Saves your list locally
+
+## Project Structure
+
+```
+Music Updater Project/
+├── main.py              # Main application with enhanced features
+├── spotify_api.py       # Spotify API integration
+├── data_manager.py      # Data persistence (JSON)
+├── config.py            # Configuration settings
+├── requirements.txt     # Python dependencies
+├── .env.template        # Environment variables template
+└── README.md           # This file
+```
+
+## Example Output
+
+```
+🎵 Music Updater - Artist Tracker 🎵
+📁 Loaded 3 saved artists
+
+🔍 Searching for 'Billie Eilish' on Spotify...
+✅ Found on Spotify: Billie Eilish
+   🎵 Genres: pop, electropop, indie pop
+   👥 Followers: 106,823,245
+   🆕 Latest: HIT ME HARD AND SOFT (2024-05-17)
+✅ Added artist: Billie Eilish
+```
+
+## Contributing
+
+This project is designed to grow step by step. Next planned features:
+1. ✅ Spotify API integration (current)
+2. 🔄 Discord bot notifications
+3. 🔄 Web interface
+4. 🔄 Database storage
+5. 🔄 Advanced filtering and search
