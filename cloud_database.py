@@ -1,22 +1,30 @@
 """
-Cloud database integration for persistent artist storage
+Cloud database integration for persistent artist storage (Async Version)
 Supports multiple cloud database providers for artist data persistence
 """
 
 import json
 import os
-import requests
+import aiohttp
 from typing import List, Dict, Any, Optional
 
 class CloudDatabase:
     """Base class for cloud database providers"""
     
-    def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
+    async def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
         """Save artists to cloud database"""
         raise NotImplementedError
     
-    def load_artists(self) -> List[Dict[str, Any]]:
+    async def load_artists(self) -> List[Dict[str, Any]]:
         """Load artists from cloud database"""
+        raise NotImplementedError
+    
+    async def save_bot_settings(self, settings: Dict[str, Any]) -> bool:
+        """Save bot settings to cloud database"""
+        raise NotImplementedError
+    
+    async def load_bot_settings(self) -> Dict[str, Any]:
+        """Load bot settings from cloud database"""
         raise NotImplementedError
 
 class JSONBinDatabase(CloudDatabase):
@@ -25,67 +33,106 @@ class JSONBinDatabase(CloudDatabase):
     def __init__(self):
         self.api_key = os.getenv('JSONBIN_API_KEY')
         self.bin_id = os.getenv('JSONBIN_BIN_ID')
+        self.settings_bin_id = os.getenv('JSONBIN_SETTINGS_BIN_ID')
         self.base_url = 'https://api.jsonbin.io/v3'
     
-    def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
+    async def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
         """Save artists to JSONBin"""
         if not self.api_key or not self.bin_id:
-            print("⚠️  JSONBin credentials not configured")
+            print("⚠️  JSONBin credentials not configured for artists")
             return False
         
+        headers = {'Content-Type': 'application/json', 'X-Master-Key': self.api_key}
+        url = f"{self.base_url}/b/{self.bin_id}"
+        
         try:
-            headers = {
-                'Content-Type': 'application/json',
-                'X-Master-Key': self.api_key
-            }
-            
-            response = requests.put(
-                f"{self.base_url}/b/{self.bin_id}",
-                headers=headers,
-                json=artists,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                print(f"☁️  Saved {len(artists)} artists to cloud database")
-                return True
-            else:
-                print(f"❌ Failed to save to cloud: {response.status_code}")
-                return False
-                
+            async with aiohttp.ClientSession() as session:
+                async with session.put(url, headers=headers, json=artists, timeout=10) as response:
+                    if response.status == 200:
+                        print(f"✅ Saved {len(artists)} artists to cloud database")
+                        return True
+                    else:
+                        print(f"❌ Failed to save artists to cloud: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return False
         except Exception as e:
-            print(f"❌ Cloud save error: {e}")
+            print(f"❌ Cloud artists save error: {e}")
             return False
     
-    def load_artists(self) -> List[Dict[str, Any]]:
+    async def load_artists(self) -> List[Dict[str, Any]]:
         """Load artists from JSONBin"""
         if not self.api_key or not self.bin_id:
-            print("⚠️  JSONBin credentials not configured")
+            print("⚠️  JSONBin credentials not configured for artists")
             return []
+            
+        headers = {'X-Master-Key': self.api_key}
+        url = f"{self.base_url}/b/{self.bin_id}/latest"
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        artists = data.get('record', [])
+                        print(f"✅ Loaded {len(artists)} artists from cloud database")
+                        return artists
+                    else:
+                        print(f"❌ Failed to load artists from cloud: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return []
+        except Exception as e:
+            print(f"❌ Cloud artists load error: {e}")
+            return []
+    
+    async def save_bot_settings(self, settings: Dict[str, Any]) -> bool:
+        """Save bot settings to JSONBin (separate bin)"""
+        if not self.api_key or not self.settings_bin_id:
+            print("⚠️  JSONBin settings bin not configured")
+            return False
+            
+        headers = {'Content-Type': 'application/json', 'X-Master-Key': self.api_key}
+        url = f"{self.base_url}/b/{self.settings_bin_id}"
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.put(url, headers=headers, json=settings, timeout=10) as response:
+                    if response.status == 200:
+                        print("✅ Bot settings saved to cloud")
+                        return True
+                    else:
+                        print(f"❌ Failed to save settings to cloud: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return False
+        except Exception as e:
+            print(f"❌ Cloud settings save error: {e}")
+            return False
+    
+    async def load_bot_settings(self) -> Dict[str, Any]:
+        """Load bot settings from JSONBin (separate bin)"""
+        if not self.api_key or not self.settings_bin_id:
+            print("⚠️  JSONBin settings bin not configured")
+            return {'notification_channels': []}
+
+        headers = {'X-Master-Key': self.api_key}
+        url = f"{self.base_url}/b/{self.settings_bin_id}/latest"
         
         try:
-            headers = {
-                'X-Master-Key': self.api_key
-            }
-            
-            response = requests.get(
-                f"{self.base_url}/b/{self.bin_id}/latest",
-                headers=headers,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                artists = data.get('record', [])
-                print(f"☁️  Loaded {len(artists)} artists from cloud database")
-                return artists
-            else:
-                print(f"❌ Failed to load from cloud: {response.status_code}")
-                return []
-                
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        settings = data.get('record', {'notification_channels': []})
+                        if 'notification_channels' not in settings:
+                            settings['notification_channels'] = []
+                        print("✅ Bot settings loaded from cloud")
+                        return settings
+                    else:
+                        print(f"❌ Failed to load settings from cloud: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return {'notification_channels': []}
         except Exception as e:
-            print(f"❌ Cloud load error: {e}")
-            return []
+            print(f"❌ Cloud settings load error: {e}")
+            return {'notification_channels': []}
 
 class GitHubGistDatabase(CloudDatabase):
     """GitHub Gist storage - Free with GitHub account"""
@@ -93,77 +140,110 @@ class GitHubGistDatabase(CloudDatabase):
     def __init__(self):
         self.token = os.getenv('GITHUB_TOKEN')
         self.gist_id = os.getenv('GITHUB_GIST_ID')
-        self.filename = 'artists_data.json'
+        self.settings_gist_id = os.getenv('GITHUB_SETTINGS_GIST_ID')
+        self.base_url = 'https://api.github.com'
     
-    def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
+    async def save_artists(self, artists: List[Dict[str, Any]]) -> bool:
         """Save artists to GitHub Gist"""
         if not self.token or not self.gist_id:
-            print("⚠️  GitHub credentials not configured")
+            print("⚠️  GitHub credentials not configured for artists")
             return False
-        
+
+        headers = {'Authorization': f'token {self.token}', 'Accept': 'application/vnd.github.v3+json'}
+        url = f"{self.base_url}/gists/{self.gist_id}"
+        data = {'files': {'artists_data.json': {'content': json.dumps(artists, indent=2)}}}
+
         try:
-            headers = {
-                'Authorization': f'token {self.token}',
-                'Accept': 'application/vnd.github.v3+json'
-            }
-            
-            data = {
-                'files': {
-                    self.filename: {
-                        'content': json.dumps(artists, indent=2)
-                    }
-                }
-            }
-            
-            response = requests.patch(
-                f"https://api.github.com/gists/{self.gist_id}",
-                headers=headers,
-                json=data,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                print(f"☁️  Saved {len(artists)} artists to GitHub Gist")
-                return True
-            else:
-                print(f"❌ Failed to save to GitHub: {response.status_code}")
-                return False
-                
+            async with aiohttp.ClientSession() as session:
+                async with session.patch(url, headers=headers, json=data, timeout=10) as response:
+                    if response.status == 200:
+                        print(f"✅ Saved {len(artists)} artists to GitHub Gist")
+                        return True
+                    else:
+                        print(f"❌ Failed to save artists to GitHub: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return False
         except Exception as e:
-            print(f"❌ GitHub save error: {e}")
+            print(f"❌ GitHub artists save error: {e}")
             return False
     
-    def load_artists(self) -> List[Dict[str, Any]]:
+    async def load_artists(self) -> List[Dict[str, Any]]:
         """Load artists from GitHub Gist"""
         if not self.token or not self.gist_id:
-            print("⚠️  GitHub credentials not configured")
+            print("⚠️  GitHub credentials not configured for artists")
             return []
-        
+
+        headers = {'Authorization': f'token {self.token}', 'Accept': 'application/vnd.github.v3+json'}
+        url = f"{self.base_url}/gists/{self.gist_id}"
+
         try:
-            headers = {
-                'Authorization': f'token {self.token}',
-                'Accept': 'application/vnd.github.v3+json'
-            }
-            
-            response = requests.get(
-                f"https://api.github.com/gists/{self.gist_id}",
-                headers=headers,
-                timeout=10
-            )
-            
-            if response.status_code == 200:
-                gist_data = response.json()
-                content = gist_data['files'][self.filename]['content']
-                artists = json.loads(content)
-                print(f"☁️  Loaded {len(artists)} artists from GitHub Gist")
-                return artists
-            else:
-                print(f"❌ Failed to load from GitHub: {response.status_code}")
-                return []
-                
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        gist_data = await response.json()
+                        content = gist_data['files']['artists_data.json']['content']
+                        artists = json.loads(content)
+                        print(f"✅ Loaded {len(artists)} artists from GitHub Gist")
+                        return artists
+                    else:
+                        print(f"❌ Failed to load artists from GitHub: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return []
         except Exception as e:
-            print(f"❌ GitHub load error: {e}")
+            print(f"❌ GitHub artists load error: {e}")
             return []
+    
+    async def save_bot_settings(self, settings: Dict[str, Any]) -> bool:
+        """Save bot settings to GitHub Gist (separate gist)"""
+        if not self.token or not self.settings_gist_id:
+            print("⚠️  GitHub settings gist not configured")
+            return False
+
+        headers = {'Authorization': f'token {self.token}', 'Accept': 'application/vnd.github.v3+json'}
+        url = f"{self.base_url}/gists/{self.settings_gist_id}"
+        data = {'files': {'bot_settings.json': {'content': json.dumps(settings, indent=2)}}}
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.patch(url, headers=headers, json=data, timeout=10) as response:
+                    if response.status == 200:
+                        print("✅ Bot settings saved to GitHub Gist")
+                        return True
+                    else:
+                        print(f"❌ Failed to save settings to GitHub: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return False
+        except Exception as e:
+            print(f"❌ GitHub settings save error: {e}")
+            return False
+    
+    async def load_bot_settings(self) -> Dict[str, Any]:
+        """Load bot settings from GitHub Gist (separate gist)"""
+        if not self.token or not self.settings_gist_id:
+            print("⚠️  GitHub settings gist not configured")
+            return {'notification_channels': []}
+
+        headers = {'Authorization': f'token {self.token}', 'Accept': 'application/vnd.github.v3+json'}
+        url = f"{self.base_url}/gists/{self.settings_gist_id}"
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, headers=headers, timeout=10) as response:
+                    if response.status == 200:
+                        gist_data = await response.json()
+                        content = gist_data['files']['bot_settings.json']['content']
+                        settings = json.loads(content)
+                        if 'notification_channels' not in settings:
+                            settings['notification_channels'] = []
+                        print("✅ Bot settings loaded from GitHub Gist")
+                        return settings
+                    else:
+                        print(f"❌ Failed to load settings from GitHub: {response.status}")
+                        print(f"☁️  Response body: {await response.text()}")
+                        return {'notification_channels': []}
+        except Exception as e:
+            print(f"❌ GitHub settings load error: {e}")
+            return {'notification_channels': []}
 
 def get_cloud_database() -> Optional[CloudDatabase]:
     """Get configured cloud database provider"""

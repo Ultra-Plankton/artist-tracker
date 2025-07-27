@@ -245,102 +245,83 @@ class MusicBot(commands.Bot):
         self.data_manager = DataManager()
         self.notification_channels = []  # Support multiple notification channels
         self.artists = []
-        
-        # Load existing data
-        self.load_data()
-        
-        # Set up scheduled tasks
         self.setup_tasks()
-    
-    def load_data(self):
-        """Load artist data and bot settings"""
-        self.artists = self.data_manager.load_artists()
-        
-        # Load bot settings (notification channels, etc.)
-        bot_settings = self.data_manager.load_bot_settings()
-        self.notification_channels = bot_settings.get('notification_channels', [])
-        
-        # Also load Discord channel ID from config if available (for backwards compatibility)
+
+    def setup_tasks(self):
+        """Set up scheduled tasks for checking releases"""
+        @tasks.loop(time=[time(9, 0), time(18, 0)])
+        async def check_releases_scheduled():
+            await self.check_and_notify_releases()
+        @tasks.loop(time=time(0, 0))
+        async def weekly_summary_task():
+            if datetime.now().weekday() == 4:
+                print("📅 Running weekly summary for Friday...")
+                await self.send_weekly_summary()
+        self.check_releases_task = check_releases_scheduled
+        self.weekly_summary_task = weekly_summary_task
+
+    async def load_data(self):
+        """Load artist data and bot settings asynchronously"""
+        self.artists = await self.data_manager.load_artists()
+        bot_settings = await self.data_manager.load_bot_settings()
+        if isinstance(bot_settings, dict):
+            self.notification_channels = bot_settings.get('notification_channels', [])
+        else:
+            self.notification_channels = []
         if config.DISCORD_CHANNEL_ID and not self.notification_channels:
             try:
                 channel_id = int(config.DISCORD_CHANNEL_ID)
                 self.notification_channels = [channel_id]
-                # Save this to persistent settings
-                self.save_bot_settings()
+                await self.save_bot_settings()
             except ValueError:
                 print("⚠️  Invalid Discord channel ID in config")
-        
         print(f"📋 Loaded {len(self.notification_channels)} notification channels")
-    
-    def save_data(self):
-        """Save artist data"""
-        return self.data_manager.save_artists(self.artists)
-    
-    def save_bot_settings(self):
-        """Save bot settings (notification channels, etc.)"""
+
+    async def save_data(self):
+        """Save artist data asynchronously"""
+        return await self.data_manager.save_artists(self.artists)
+
+    async def save_bot_settings(self):
+        """Save bot settings (notification channels, etc.) asynchronously"""
         settings = {
             'notification_channels': self.notification_channels,
             'last_updated': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        return self.data_manager.save_bot_settings(settings)
-    
-    async def close(self):
-        """Properly close the bot and cleanup resources"""
-        # Stop scheduled tasks
-        if hasattr(self, 'check_releases_task') and self.check_releases_task.is_running():
-            self.check_releases_task.cancel()
-        
-        if hasattr(self, 'weekly_summary_task') and self.weekly_summary_task.is_running():
-            self.weekly_summary_task.cancel()
-        
-        # Close the bot connection
-        await super().close()
-    
-    def setup_tasks(self):
-        """Set up scheduled tasks for checking releases"""
-        # Check twice daily: 9 AM and 6 PM (production)
-        @tasks.loop(time=[time(9, 0), time(18, 0)])
-        async def check_releases_scheduled():
-            await self.check_and_notify_releases()
-        
-        # Test mode: Check every 2 minutes for testing notifications
-        @tasks.loop(minutes=2)
-        async def check_releases_test():
-            print("🧪 TEST MODE: Running release check...")
-            await self.check_and_notify_releases()
-        
-        # Weekly summary: Every Friday at midnight
-        @tasks.loop(time=time(0, 0))  # Midnight
-        async def weekly_summary_task():
-            # Only run on Fridays (weekday 4)
-            if datetime.now().weekday() == 4:  # Friday
-                print("📅 Running weekly summary for Friday...")
-                await self.send_weekly_summary()
-        
-        # Use production mode (twice daily checks)
-        self.check_releases_task = check_releases_scheduled
-        self.weekly_summary_task = weekly_summary_task
-    
+        return await self.data_manager.save_bot_settings(settings)
+
+    async def add_notification_channel_async(self, channel_id: int):
+        """Add a channel to receive automatic notifications asynchronously"""
+        if channel_id not in self.notification_channels:
+            self.notification_channels.append(channel_id)
+            await self.save_bot_settings()
+            print(f"✅ Added notification channel: {channel_id}")
+            return True
+        return False
+
+    async def remove_notification_channel_async(self, channel_id: int):
+        """Remove a channel from automatic notifications asynchronously"""
+        if channel_id in self.notification_channels:
+            self.notification_channels.remove(channel_id)
+            await self.save_bot_settings()
+            print(f"✅ Removed notification channel: {channel_id}")
+            return True
+        return False
+
     async def setup_hook(self):
-        """Called when bot is starting up"""
-        # Sync slash commands
+        await self.load_data()
         try:
             synced = await self.tree.sync()
             print(f"✅ Synced {len(synced)} slash commands")
         except Exception as e:
             print(f"❌ Failed to sync slash commands: {e}")
-    
+
     async def on_ready(self):
-        """Called when bot is ready"""
         print(f'🤖 {self.user} is online and ready!')
         print(f'📊 Tracking {len(self.artists)} artists')
-        
-        # Start scheduled tasks
-        if not self.check_releases_task.is_running():
+        if hasattr(self, 'check_releases_task') and not self.check_releases_task.is_running():
             self.check_releases_task.start()
             print('🔄 PRODUCTION MODE: Release checks twice daily (9 AM & 6 PM)')
-        
-        if not self.weekly_summary_task.is_running():
+        if hasattr(self, 'weekly_summary_task') and not self.weekly_summary_task.is_running():
             self.weekly_summary_task.start()
             print('📅 Weekly summary task started (Fridays at midnight)')
         
@@ -429,7 +410,7 @@ class MusicBot(commands.Bot):
         
         # Save data if we found new releases
         if new_releases:
-            self.save_data()
+            await self.save_data()
             
             # Send consolidated notification to all configured channels
             if self.notification_channels:
@@ -690,52 +671,46 @@ class MusicBot(commands.Bot):
                     print(f"⚠️  Could not send notification to channel {channel_id}: {e}")
                     
     def add_notification_channel(self, channel_id: int):
-        """Add a channel to receive automatic notifications"""
+        """Add a channel to receive automatic notifications (legacy sync, for compatibility)"""
         if channel_id not in self.notification_channels:
             self.notification_channels.append(channel_id)
-            self.save_bot_settings()  # Persist the change
+            # Fix: Await the async save_bot_settings
+            import asyncio
+            asyncio.create_task(self.save_bot_settings())
             print(f"✅ Added notification channel: {channel_id}")
             return True
         return False
     
     def remove_notification_channel(self, channel_id: int):
-        """Remove a channel from automatic notifications"""
+        """Remove a channel from automatic notifications (legacy sync, for compatibility)"""
         if channel_id in self.notification_channels:
             self.notification_channels.remove(channel_id)
-            self.save_bot_settings()  # Persist the change
+            # Fix: Await the async save_bot_settings
+            import asyncio
+            asyncio.create_task(self.save_bot_settings())
             print(f"✅ Removed notification channel: {channel_id}")
             return True
         return False
 
 # Slash Commands - Using a more compatible approach
 async def add_artist_command(interaction: discord.Interaction, artist: str):
-    """Add an artist to track for new releases"""
     bot: MusicBot = interaction.client  # type: ignore
     if not hasattr(bot, 'artists'):
         await interaction.response.send_message("❌ Bot not properly initialized.", ephemeral=True)
         return
-        
-    # Check if artist already exists
     for existing_artist in bot.artists:
         if existing_artist['name'].lower() == artist.lower():
             await interaction.response.send_message(f"⚠️ **{artist}** is already being tracked!", ephemeral=True)
             return
-    
     if not bot.spotify.is_available():
         await interaction.response.send_message("❌ Spotify API not available. Cannot add artists.", ephemeral=True)
         return
-    
-    # Defer the response since Spotify search might take a moment
     await interaction.response.defer()
-    
     try:
         spotify_data = bot.spotify.search_artist(artist, interactive=False)
-        
         if not spotify_data:
             await interaction.followup.send(f"❌ Could not find **{artist}** on Spotify.")
             return
-        
-        # Create artist data
         artist_data = {
             'name': spotify_data['name'],
             'genre': spotify_data['genres'][0] if spotify_data['genres'] else None,
@@ -746,44 +721,34 @@ async def add_artist_command(interaction: discord.Interaction, artist: str):
             'latest_album': None,
             'latest_single': None
         }
-        
-        # Get latest releases
         releases_by_type = bot.spotify.get_latest_by_type(spotify_data['id'])
         artist_data['latest_album'] = releases_by_type['latest_album']
         artist_data['latest_single'] = releases_by_type['latest_single']
-        
-        # Add to list and save
-        bot.artists.append(artist_data)
-        bot.save_data()
-        
-        # Send confirmation
+        if isinstance(bot.artists, list):
+            bot.artists.append(artist_data)
+            await bot.save_data()
         embed = discord.Embed(
             title="✅ Artist Added!",
             description=f"Now tracking **{spotify_data['name']}**",
             color=0x1DB954
         )
-        
         if spotify_data['genres']:
             embed.add_field(name="🎸 Genres", value=', '.join(spotify_data['genres'][:3]), inline=True)
         embed.add_field(name="👥 Followers", value=f"{spotify_data['followers']:,}", inline=True)
         embed.add_field(name="📊 Popularity", value=f"{spotify_data['popularity']}/100", inline=True)
-        
         if artist_data['latest_album']:
             embed.add_field(
                 name="💿 Latest Album", 
                 value=f"{artist_data['latest_album']['name']} ({artist_data['latest_album']['release_date']})", 
                 inline=False
             )
-        
         if artist_data['latest_single']:
             embed.add_field(
                 name="🎵 Latest Single", 
                 value=f"{artist_data['latest_single']['name']} ({artist_data['latest_single']['release_date']})", 
                 inline=False
             )
-        
         await interaction.followup.send(embed=embed)
-        
     except Exception as e:
         await interaction.followup.send(f"❌ Error adding artist: {str(e)}")
 
@@ -805,25 +770,19 @@ async def list_artists_command(interaction: discord.Interaction):
         await interaction.response.send_message(embed=embed)
 
 async def remove_artist_command(interaction: discord.Interaction, artist: str):
-    """Remove an artist from tracking"""
     bot: MusicBot = interaction.client  # type: ignore
     if not hasattr(bot, 'artists'):
         await interaction.response.send_message("❌ Bot not properly initialized.", ephemeral=True)
         return
-    
     if not bot.artists:
         await interaction.response.send_message("📭 No artists being tracked yet. Use `/music add` to start!", ephemeral=True)
         return
-    
-    # Find the artist to remove (case-insensitive)
     artist_to_remove = None
     for existing_artist in bot.artists:
         if existing_artist['name'].lower() == artist.lower():
             artist_to_remove = existing_artist
             break
-    
     if not artist_to_remove:
-        # Show available artists if not found
         available_artists = [a['name'] for a in bot.artists]
         embed = discord.Embed(
             title="❌ Artist Not Found",
@@ -839,12 +798,9 @@ async def remove_artist_command(interaction: discord.Interaction, artist: str):
             embed.set_footer(text=f"Showing first 10 of {len(available_artists)} artists")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
-    
-    # Remove the artist
-    bot.artists.remove(artist_to_remove)
-    bot.save_data()
-    
-    # Send confirmation
+    if isinstance(bot.artists, list):
+        bot.artists.remove(artist_to_remove)
+        await bot.save_data()
     embed = discord.Embed(
         title="✅ Artist Removed!",
         description=f"**{artist_to_remove['name']}** has been removed from tracking.",
@@ -855,43 +811,32 @@ async def remove_artist_command(interaction: discord.Interaction, artist: str):
         value=f"Now tracking {len(bot.artists)} artists",
         inline=True
     )
-    
     await interaction.response.send_message(embed=embed)
 
 from typing import Optional
 
 async def setup_notifications_command(interaction: discord.Interaction, channel: Optional[discord.TextChannel] = None):
-    """Set up notifications for the current or specified channel"""
     bot: MusicBot = interaction.client  # type: ignore
-    if not hasattr(bot, 'add_notification_channel'):
+    if not hasattr(bot, 'add_notification_channel_async'):
         await interaction.response.send_message("❌ Bot not properly initialized.", ephemeral=True)
         return
-    
-    # Use current channel if none specified
     target_channel = channel or interaction.channel
-
     if target_channel is None or not hasattr(target_channel, "id"):
         await interaction.response.send_message("❌ Could not determine the target channel for notifications.", ephemeral=True)
         return
-    
-    # Check permissions
     member = getattr(interaction, "user", None)
     has_permission = False
     if hasattr(interaction, "guild") and interaction.guild is not None:
-        # Try to get the member object
         if isinstance(interaction.user, discord.Member):
             has_permission = interaction.user.guild_permissions.manage_channels
         else:
-            # Try to fetch the member from the guild
             member = interaction.guild.get_member(interaction.user.id)
             if member and hasattr(member, "guild_permissions"):
                 has_permission = member.guild_permissions.manage_channels
-
     if not has_permission:
         await interaction.response.send_message("❌ You need 'Manage Channels' permission to set up notifications.", ephemeral=True)
         return
-    
-    if bot.add_notification_channel(target_channel.id):
+    if await bot.add_notification_channel_async(target_channel.id):
         embed = discord.Embed(
             title="✅ Notifications Enabled!",
             description=f"This channel will now receive automatic release notifications.",
@@ -908,37 +853,27 @@ async def setup_notifications_command(interaction: discord.Interaction, channel:
 from typing import Optional
 
 async def remove_notifications_command(interaction: discord.Interaction, channel: Optional[discord.TextChannel] = None):
-    """Remove notifications from the current or specified channel"""
     bot: MusicBot = interaction.client  # type: ignore
-    if not hasattr(bot, 'remove_notification_channel'):
+    if not hasattr(bot, 'remove_notification_channel_async'):
         await interaction.response.send_message("❌ Bot not properly initialized.", ephemeral=True)
         return
-    
-    # Use current channel if none specified
     target_channel = channel or interaction.channel
-
     if target_channel is None or not hasattr(target_channel, "id"):
         await interaction.response.send_message("❌ Could not determine the target channel for notifications.", ephemeral=True)
         return
-    
-    # Check permissions
     has_permission = False
     member = getattr(interaction, "user", None)
     if hasattr(interaction, "guild") and interaction.guild is not None:
-        # Try to get the member object
         if isinstance(interaction.user, discord.Member):
             has_permission = interaction.user.guild_permissions.manage_channels
         else:
-            # Try to fetch the member from the guild
             member = interaction.guild.get_member(interaction.user.id)
             if member and hasattr(member, "guild_permissions"):
                 has_permission = member.guild_permissions.manage_channels
-
     if not has_permission:
         await interaction.response.send_message("❌ You need 'Manage Channels' permission to manage notifications.", ephemeral=True)
         return
-
-    if bot.remove_notification_channel(target_channel.id):
+    if await bot.remove_notification_channel_async(target_channel.id):
         await interaction.response.send_message(f"✅ Notifications disabled for {getattr(target_channel, 'mention', getattr(target_channel, 'name', f'ID: {target_channel.id}'))}.", ephemeral=True)
     else:
         await interaction.response.send_message(f"⚠️ {getattr(target_channel, 'mention', getattr(target_channel, 'name', f'ID: {target_channel.id}'))} wasn't receiving notifications.", ephemeral=True)
