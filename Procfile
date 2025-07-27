@@ -1,1 +1,1 @@
-web: python discord_bot.py
+web: python start.py

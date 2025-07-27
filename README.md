@@ -128,7 +128,54 @@ Music Updater Project/
 
 This project is designed to grow step by step. Next planned features:
 1. ✅ Spotify API integration (current)
-2. 🔄 Discord bot notifications
+2. ✅ Discord bot notifications (current)
 3. 🔄 Web interface
 4. 🔄 Database storage
 5. 🔄 Advanced filtering and search
+
+## Deployment
+
+### Render Deployment (Recommended for 24/7 hosting)
+
+1. **Fork this repository** to your GitHub account
+
+2. **Create a new Web Service** on [Render](https://render.com)
+   - Connect your GitHub repository
+   - Set build command: `pip install -r requirements.txt`
+   - Set start command: `python start.py`
+
+3. **Configure environment variables** in Render:
+   ```
+   DISCORD_BOT_TOKEN=your_discord_bot_token
+   SPOTIFY_CLIENT_ID=your_spotify_client_id
+   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   ```
+
+4. **Deploy** - Render will automatically deploy from your main branch
+
+The bot includes a built-in health check server for 24/7 uptime on Render's free tier.
+
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/artist-tracker.git
+   cd artist-tracker
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure environment** - Copy `.env.template` to `.env` and add your tokens
+
+4. **Run the Discord bot**
+   ```bash
+   python discord_bot.py
+   ```
+
+5. **Run the CLI app** (optional)
+   ```bash
+   python cli_app.py
+   ```
