@@ -1,0 +1,985 @@
+[
+  {
+    "name": "I Prevail",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "3Uobr6LgQpBbk6k4QGAb3V",
+      "name": "I Prevail",
+      "followers": 1776743,
+      "popularity": 72,
+      "genres": [
+        "metalcore"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/3Uobr6LgQpBbk6k4QGAb3V"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eba26ab7baa4a50f469edbfd76",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174a26ab7baa4a50f469edbfd76",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178a26ab7baa4a50f469edbfd76",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "TRUE POWER (EXPANDED)",
+      "release_date": "2024-09-20",
+      "type": "album",
+      "total_tracks": 19,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/05l8JgDcorVDRyky1RT8fL"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273d5f76ee124771f35365d6f6c",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02d5f76ee124771f35365d6f6c",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851d5f76ee124771f35365d6f6c",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Rain",
+      "release_date": "2025-07-18",
+      "type": "single",
+      "total_tracks": 3,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3ndeaQffdBCpmpIzfoQz53"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2735900ed4f73be877f61697306",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e025900ed4f73be877f61697306",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048515900ed4f73be877f61697306",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "The Devil Wears Prada",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "0NbQe5CNgh4YApOCDuHSjb",
+      "name": "The Devil Wears Prada",
+      "followers": 708732,
+      "popularity": 60,
+      "genres": [
+        "metalcore",
+        "post-hardcore",
+        "screamo",
+        "deathcore",
+        "metal"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/0NbQe5CNgh4YApOCDuHSjb"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebe3bb40229a22b1fab43e312b",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174e3bb40229a22b1fab43e312b",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178e3bb40229a22b1fab43e312b",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Color Decay (Deluxe)",
+      "release_date": "2023-05-05",
+      "type": "album",
+      "total_tracks": 22,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4ivtHYEdInBvOFptjVmEYf"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273589ac9b84f147a845a41acf1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02589ac9b84f147a845a41acf1",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851589ac9b84f147a845a41acf1",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "For You",
+      "release_date": "2025-04-17",
+      "type": "single",
+      "total_tracks": 2,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3BbqSd8P0jhMN7i4i3SNv1"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2732be3555c570e1e35bbf44b1e",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e022be3555c570e1e35bbf44b1e",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048512be3555c570e1e35bbf44b1e",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Beartooth",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "6vwjIs0tbIiseJMR3pqwiL",
+      "name": "Beartooth",
+      "followers": 864835,
+      "popularity": 64,
+      "genres": [
+        "metalcore",
+        "post-hardcore"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/6vwjIs0tbIiseJMR3pqwiL"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebd2219c00e2fa1f2aaddcbf24",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174d2219c00e2fa1f2aaddcbf24",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178d2219c00e2fa1f2aaddcbf24",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "I Was A... LIVE",
+      "release_date": "2025-07-11",
+      "type": "album",
+      "total_tracks": 21,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0buSOtFKHYDwIuLXriIfe6"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273c0e3909225fd08839b547a89",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02c0e3909225fd08839b547a89",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851c0e3909225fd08839b547a89",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "The Better Me",
+      "release_date": "2023-09-15",
+      "type": "single",
+      "total_tracks": 1,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/29ryaHa8XIbX6bPJ8KmfRm"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273f9d6a052cdcb12da99fdb994",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02f9d6a052cdcb12da99fdb994",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851f9d6a052cdcb12da99fdb994",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "The Amity Affliction",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "6kNKUYGn6VNGsRoXmyoDPK",
+      "name": "The Amity Affliction",
+      "followers": 784298,
+      "popularity": 63,
+      "genres": [
+        "metalcore",
+        "post-hardcore",
+        "screamo"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/6kNKUYGn6VNGsRoXmyoDPK"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebe19d003da822b88ffb173ddf",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174e19d003da822b88ffb173ddf",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178e19d003da822b88ffb173ddf",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Let The Ocean Take Me (Redux)",
+      "release_date": "2024-09-27",
+      "type": "album",
+      "total_tracks": 10,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3rFpcPqcUpFRcbFwd5kyCm"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2730f79c952ad30cd66b09cd516",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e020f79c952ad30cd66b09cd516",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048510f79c952ad30cd66b09cd516",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "HOLIDAY (triple j Like A Version)",
+      "release_date": "2025-06-06",
+      "type": "single",
+      "total_tracks": 1,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/53Pxc85muSFHWrREFpMS0L"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2735c45fe6f965565db8d2e5db1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e025c45fe6f965565db8d2e5db1",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048515c45fe6f965565db8d2e5db1",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Ice Nine Kills",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "52qKfVcIV4GS8A8Vay2xtt",
+      "name": "Ice Nine Kills",
+      "followers": 1130395,
+      "popularity": 68,
+      "genres": [
+        "metalcore",
+        "metal"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/52qKfVcIV4GS8A8Vay2xtt"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb40fa008d6392cc85377a8bc8",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000517440fa008d6392cc85377a8bc8",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f17840fa008d6392cc85377a8bc8",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "I Heard They Kill Live 2",
+      "release_date": "2025-06-06",
+      "type": "album",
+      "total_tracks": 11,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/52dP4TCvpzCOqHUAg26wzw"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273ae7b98187bb43c53ca21151c",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02ae7b98187bb43c53ca21151c",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851ae7b98187bb43c53ca21151c",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "The Great Unknown",
+      "release_date": "2025-07-09",
+      "type": "single",
+      "total_tracks": 2,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6fE894gRLhqsRjiW2sgLTP"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273d1cbd0c1989d8a4377e548a1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02d1cbd0c1989d8a4377e548a1",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851d1cbd0c1989d8a4377e548a1",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Alpha Wolf",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "2tjnvrUmP46XNjFh9V0NGc",
+      "name": "Alpha Wolf",
+      "followers": 199998,
+      "popularity": 54,
+      "genres": [
+        "metalcore",
+        "deathcore",
+        "djent"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/2tjnvrUmP46XNjFh9V0NGc"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb25e561267fcf478c7a3045cf",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000517425e561267fcf478c7a3045cf",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f17825e561267fcf478c7a3045cf",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Half Living Things",
+      "release_date": "2024-04-05",
+      "type": "album",
+      "total_tracks": 12,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/7C8apxgn0J0n0AMvPrfLxN"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2735a99034d3b08309f991cec7f",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e025a99034d3b08309f991cec7f",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048515a99034d3b08309f991cec7f",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Alpha Wolf on Audiotree Live",
+      "release_date": "2024-09-17",
+      "type": "single",
+      "total_tracks": 5,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1SzS1LUUceddG6DBicNjlx"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2733e6c4fe2889fb2a91fbd4d3a",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e023e6c4fe2889fb2a91fbd4d3a",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048513e6c4fe2889fb2a91fbd4d3a",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Fit For A King",
+    "genre": "metalcore",
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "0OgdRTPItr9dw4XYp4JJUx",
+      "name": "Fit For A King",
+      "followers": 464498,
+      "popularity": 61,
+      "genres": [
+        "metalcore",
+        "christian rock",
+        "deathcore",
+        "metal",
+        "djent",
+        "post-hardcore"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/0OgdRTPItr9dw4XYp4JJUx"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb2e18d7b4b0e73755b6a905b1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab676161000051742e18d7b4b0e73755b6a905b1",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f1782e18d7b4b0e73755b6a905b1",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "The Hell We Create",
+      "release_date": "2022-10-28",
+      "type": "album",
+      "total_tracks": 10,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6eC2kXPm1Nrb6kbtuPpc4D"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273a492213b964b863a58324381",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02a492213b964b863a58324381",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851a492213b964b863a58324381",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Witness The End",
+      "release_date": "2025-07-18",
+      "type": "single",
+      "total_tracks": 5,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2a5Btl1VIyyCunyQ9aGzXk"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273563475cfc23c51f41782bd7b",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02563475cfc23c51f41782bd7b",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851563475cfc23c51f41782bd7b",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Halestorm",
+    "genre": null,
+    "added_date": "2025-07-22",
+    "spotify_data": {
+      "id": "6om12Ev5ppgoMy3OYSoech",
+      "name": "Halestorm",
+      "followers": 1595658,
+      "popularity": 68,
+      "genres": [],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/6om12Ev5ppgoMy3OYSoech"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eba5a67014e15b1aca76df3c83",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174a5a67014e15b1aca76df3c83",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178a5a67014e15b1aca76df3c83",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Live At Wembley",
+      "release_date": "2024-05-17",
+      "type": "album",
+      "total_tracks": 18,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/592Co6VNPjSNO3IvZBFp5D"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273ebf5da20870be44259c5ece1",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02ebf5da20870be44259c5ece1",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851ebf5da20870be44259c5ece1",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Rain Your Blood On Me",
+      "release_date": "2025-07-11",
+      "type": "single",
+      "total_tracks": 3,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5nVX7E3Cu7dREQeBle4FRW"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273b2e9b76d771bc64d90bb6649",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02b2e9b76d771bc64d90bb6649",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851b2e9b76d771bc64d90bb6649",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Our Last Night",
+    "genre": "post-hardcore",
+    "added_date": "2025-07-26",
+    "spotify_data": {
+      "id": "00YTqRClk82aMchQQpYMd5",
+      "name": "Our Last Night",
+      "followers": 1195883,
+      "popularity": 65,
+      "genres": [
+        "post-hardcore",
+        "metalcore"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/00YTqRClk82aMchQQpYMd5"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb9284eb7ab597b8b48e46bbdd",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab676161000051749284eb7ab597b8b48e46bbdd",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f1789284eb7ab597b8b48e46bbdd",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Left Alone",
+      "release_date": "2025-05-09",
+      "type": "album",
+      "total_tracks": 10,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/4PKf574spLkr6xETLg0pFq"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273fca72a3a8646aed0e340e923",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02fca72a3a8646aed0e340e923",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851fca72a3a8646aed0e340e923",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Lose Control",
+      "release_date": "2025-07-25",
+      "type": "single",
+      "total_tracks": 1,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0V5YauW5H7qqrlJuRqgLIN"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273a62aeb52ae08ad29e4140de3",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02a62aeb52ae08ad29e4140de3",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851a62aeb52ae08ad29e4140de3",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "From Ashes to New",
+    "genre": "rap rock",
+    "added_date": "2025-07-26",
+    "spotify_data": {
+      "id": "4HrkLxQHZ5mgCtIVpiH5QX",
+      "name": "From Ashes to New",
+      "followers": 594583,
+      "popularity": 60,
+      "genres": [
+        "rap rock",
+        "rap metal"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/4HrkLxQHZ5mgCtIVpiH5QX"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5ebd8fc4ecf3b1a2f00add9159e",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174d8fc4ecf3b1a2f00add9159e",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178d8fc4ecf3b1a2f00add9159e",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "Blackout (Deluxe)",
+      "release_date": "2024-06-07",
+      "type": "album",
+      "total_tracks": 18,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2nrcJMkhBQGbpIyqkDqQf5"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2736c1797c44a79d40998f02fe4",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e026c1797c44a79d40998f02fe4",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048516c1797c44a79d40998f02fe4",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "New Disease",
+      "release_date": "2025-07-25",
+      "type": "single",
+      "total_tracks": 1,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/23L4tjuxXU9eTZ1Zs1VZDf"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2736c4357835601c501bc8eea28",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e026c4357835601c501bc8eea28",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048516c4357835601c501bc8eea28",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  },
+  {
+    "name": "Nevertel",
+    "genre": "metalcore",
+    "added_date": "2025-07-26",
+    "spotify_data": {
+      "id": "0uTkKGuqdf7CtKlZLt9N0Y",
+      "name": "Nevertel",
+      "followers": 138267,
+      "popularity": 59,
+      "genres": [
+        "metalcore"
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/0uTkKGuqdf7CtKlZLt9N0Y"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab6761610000e5eb632f10f0b6dca605d68e2a8f",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616100005174632f10f0b6dca605d68e2a8f",
+          "height": 320,
+          "width": 320
+        },
+        {
+          "url": "https://i.scdn.co/image/ab6761610000f178632f10f0b6dca605d68e2a8f",
+          "height": 160,
+          "width": 160
+        }
+      ]
+    },
+    "last_checked": "2025-07-27 00:13",
+    "latest_release": null,
+    "latest_album": {
+      "name": "RE:WYRED.exe",
+      "release_date": "2021-12-17",
+      "type": "album",
+      "total_tracks": 8,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6LvcWIyNPbwHaag5WlyMzg"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b273e56793471f6ffdb07c8df479",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e02e56793471f6ffdb07c8df479",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00004851e56793471f6ffdb07c8df479",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "latest_single": {
+      "name": "Some Things",
+      "release_date": "2025-07-16",
+      "type": "single",
+      "total_tracks": 5,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/1iFgpCMEHReezjRNWp0XuG"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b27368e76823832d75bde9cf904d",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e0268e76823832d75bde9cf904d",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000485168e76823832d75bde9cf904d",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    }
+  }
+]

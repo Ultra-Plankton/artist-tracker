@@ -5,8 +5,7 @@
 #Github
 .github
 
-# Data Files
-artists_data.json
+# Data Files (bot_settings contains sensitive data)
 bot_settings.json
 
 # Spotify Cache
