@@ -7,7 +7,9 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 import asyncio
+import os
 from datetime import datetime, time, timedelta
+from aiohttp import web
 import config
 from spotify_api import SpotifyAPI
 from data_manager import DataManager
@@ -1114,6 +1116,28 @@ class MusicGroup(app_commands.Group):
         await stats_command(interaction)
 
 # Initialize and run bot
+async def health_check(request):
+    """Simple health check endpoint for keep-alive service"""
+    return web.json_response({
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "music-updater-bot"
+    })
+
+async def start_health_server():
+    """Start a simple health check server for keep-alive"""
+    app = web.Application()
+    app.router.add_get('/health', health_check)
+    app.router.add_get('/', health_check)  # Root endpoint too
+    
+    port = int(os.environ.get('PORT', 8080))  # Render uses PORT env var
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    print(f"🏥 Health check server started on port {port}")
+    return runner
+
 async def run_discord_bot():
     """Initialize and run the Discord bot"""
     if not config.DISCORD_TOKEN:
@@ -1136,10 +1160,22 @@ async def run_discord_bot():
         if not bot.is_closed():
             await bot.close()
 
+async def main():
+    """Main entry point that starts both the health server and Discord bot"""
+    # Start health check server for Render
+    health_runner = await start_health_server()
+    
+    try:
+        # Start the Discord bot (this will run indefinitely)
+        await run_discord_bot()
+    finally:
+        # Cleanup health server if bot stops
+        await health_runner.cleanup()
+
 if __name__ == "__main__":
     # Run the bot with proper event loop handling
     try:
-        asyncio.run(run_discord_bot())
+        asyncio.run(main())
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped by user")
     except RuntimeError as e:

@@ -2,9 +2,15 @@
 .env
 *.env
 
+#Github
+.github
+
 # Data Files
 artists_data.json
 bot_settings.json
+
+# Spotify Cache
+.cache
 
 # Python
 __pycache__/

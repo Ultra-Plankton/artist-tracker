@@ -12,5 +12,8 @@ discord.py>=2.3.2
 # For making HTTP requests
 requests>=2.31.0
 
+# For async HTTP requests (keep-alive service)
+aiohttp>=3.8.0
+
 # For environment variables
 python-dotenv>=1.0.0
