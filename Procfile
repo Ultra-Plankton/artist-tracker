@@ -1,1 +1,1 @@
-web: python start.py
+web: python3 discord_bot.py

@@ -8,6 +8,7 @@ from discord.ext import commands, tasks
 from discord import app_commands
 import asyncio
 import os
+import sys
 from datetime import datetime, time, timedelta
 from aiohttp import web
 import config
@@ -1162,19 +1163,28 @@ async def run_discord_bot():
 
 async def main():
     """Main entry point that starts both the health server and Discord bot"""
+    print("🚀 Starting Music Updater Discord Bot...")
+    print(f"📁 Working directory: {os.getcwd()}")
+    print(f"🐍 Python version: {sys.version}")
+    print(f"🌍 Environment variables loaded: {bool(os.getenv('DISCORD_BOT_TOKEN'))}")
+    
     # Start health check server for Render
+    print("🏥 Starting health check server...")
     health_runner = await start_health_server()
     
     try:
         # Start the Discord bot (this will run indefinitely)
+        print("🤖 Starting Discord bot...")
         await run_discord_bot()
     finally:
         # Cleanup health server if bot stops
+        print("🧹 Cleaning up health server...")
         await health_runner.cleanup()
 
 if __name__ == "__main__":
     # Run the bot with proper event loop handling
     try:
+        print("🎯 Executing discord_bot.py as main module")
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n🛑 Bot stopped by user")
@@ -1182,4 +1192,10 @@ if __name__ == "__main__":
         if "Event loop is closed" in str(e):
             print("✅ Bot stopped cleanly")
         else:
+            print(f"❌ Runtime error: {e}")
             raise
+    except Exception as e:
+        print(f"❌ Unexpected error during startup: {e}")
+        import traceback
+        traceback.print_exc()
+        raise

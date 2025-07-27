@@ -142,7 +142,8 @@ This project is designed to grow step by step. Next planned features:
 2. **Create a new Web Service** on [Render](https://render.com)
    - Connect your GitHub repository
    - Set build command: `pip install -r requirements.txt`
-   - Set start command: `python start.py`
+   - Set start command: `python3 discord_bot.py`
+   - Environment: `Python 3`
 
 3. **Configure environment variables** in Render:
    ```
