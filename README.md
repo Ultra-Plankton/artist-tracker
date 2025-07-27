@@ -71,16 +71,17 @@ The application provides an enhanced menu interface:
 python discord_bot.py
 ```
 
-**Discord Commands:**
-- `!music add <artist>` - Add an artist to track
-- `!music list` - Show all tracked artists
-- `!music check` - Check for new releases
-- `!music help` - Show all commands
+**Getting Started with Discord Bot:**
+1. **Deploy the bot** with just Spotify credentials and Discord token
+2. **Invite the bot** to your Discord server
+3. **Use `/music setup`** in any channel to enable notifications for that channel
+4. **Start adding artists** with `/music add <artist>`
 
-**Automatic Features:**
-- 🔔 **Twice Daily Checks** (9 AM & 6 PM)
-- 📢 **Rich Notifications** with album art and Spotify links
+**Key Features:**
+- 🔔 **Flexible Notifications** - Use `/music setup` to enable notifications in any channel
+- 📢 **Rich Embeds** with album art and Spotify links  
 - 🎯 **Smart Tracking** (separates albums from singles)
+- ⏰ **Automatic Checks** twice daily (9 AM & 6 PM)
 
 > **See [DISCORD_SETUP.md](DISCORD_SETUP.md) for complete Discord bot setup instructions**
 
