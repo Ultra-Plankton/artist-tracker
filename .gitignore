@@ -4,6 +4,7 @@
 
 # Data Files
 artists_data.json
+bot_settings.json
 
 # Python
 __pycache__/

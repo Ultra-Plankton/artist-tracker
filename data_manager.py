@@ -1,6 +1,6 @@
 """
 Data persistence module for Music Updater
-Handles saving and loading artist data to/from JSON file
+Handles saving and loading artist data and bot settings to/from JSON file
 """
 
 import json
@@ -11,6 +11,7 @@ import config
 class DataManager:
     def __init__(self):
         self.data_file = config.DATA_FILE
+        self.settings_file = 'bot_settings.json'
     
     def save_artists(self, artists):
         """Save artists list to JSON file"""
@@ -33,6 +34,32 @@ class DataManager:
         except Exception as e:
             print(f"❌ Error loading data: {e}")
             return []
+    
+    def save_bot_settings(self, settings):
+        """Save bot settings to JSON file"""
+        try:
+            with open(self.settings_file, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"❌ Error saving bot settings: {e}")
+            return False
+    
+    def load_bot_settings(self):
+        """Load bot settings from JSON file"""
+        if not os.path.exists(self.settings_file):
+            return {'notification_channels': []}
+        
+        try:
+            with open(self.settings_file, 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                # Ensure notification_channels exists
+                if 'notification_channels' not in settings:
+                    settings['notification_channels'] = []
+                return settings
+        except Exception as e:
+            print(f"❌ Error loading bot settings: {e}")
+            return {'notification_channels': []}
     
     def backup_data(self):
         """Create a backup of the current data"""
