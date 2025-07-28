@@ -9,7 +9,7 @@ import os
 from datetime import datetime
 
 class KeepAlive:
-    def __init__(self, url=None, interval=600):  # 10 minutes default
+    def __init__(self, url=None, interval=30):  # 30 seconds default
         """
         Initialize keep-alive service
         
