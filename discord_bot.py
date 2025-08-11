@@ -474,15 +474,16 @@ class MusicBot(commands.Bot):
         
         print("📅 Generating weekly summary...")
         
-        # Calculate date range for the past week (Monday to Sunday)
-        today = datetime.now()
-        # Get last Monday (start of this week)
-        days_since_monday = today.weekday()
-        last_monday = today - timedelta(days=days_since_monday)
-        # Get the previous Monday (start of last week)
-        week_start = last_monday - timedelta(days=7)
-        week_end = last_monday - timedelta(days=1)  # Last Sunday
-        
+        # Calculate date range for the past week (Friday to Friday)
+        today = datetime.now().date()
+        # Find the most recent Friday (including today if it's Friday)
+        days_since_friday = (today.weekday() - 4) % 7
+        this_friday = today - timedelta(days=days_since_friday)
+        last_friday = this_friday - timedelta(days=7)
+
+        week_start = last_friday
+        week_end = this_friday
+
         week_start_str = week_start.strftime("%Y-%m-%d")
         week_end_str = week_end.strftime("%Y-%m-%d")
         
