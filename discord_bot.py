@@ -9,6 +9,8 @@ from discord import app_commands
 import asyncio
 import os
 import sys
+import traceback
+import sys
 from datetime import datetime, time, timedelta
 from aiohttp import web
 import config
@@ -16,6 +18,441 @@ from spotify_api import SpotifyAPI
 from data_manager import DataManager
 import json
 import math
+import requests
+import urllib.parse
+
+# YouTube API integration
+class YouTubeAPI:
+    """YouTube API integration for Music Updater"""
+
+    def __init__(self, api_key=None):
+        # If no API key is provided, try to get it from config or environment
+        if api_key is None:
+            api_key = config.YOUTUBE_API_KEY or os.environ.get('YOUTUBE_API_KEY', '')
+            
+            # Try .env.template as last resort if other sources fail
+            if not api_key or len(api_key) < 10:
+                try:
+                    with open('.env.template', 'r') as f:
+                        for line in f:
+                            if line.startswith('YOUTUBE_API_KEY='):
+                                template_key = line.split('=', 1)[1].strip().strip('"').strip("'")
+                                if template_key and len(template_key) > 10:
+                                    print(f"⚠️ Using YouTube API key from .env.template as fallback")
+                                    api_key = template_key
+                                    break
+                except Exception as e:
+                    print(f"⚠️ Could not load API key from .env.template: {e}")
+        
+        self.api_key = api_key
+        self.base_url = "https://www.googleapis.com/youtube/v3"
+        
+        if not api_key or len(api_key) < 10:
+            print(f"⚠️ WARNING: Invalid YouTube API key format")
+        else:
+            print(f"📺 YouTube API initialized with key: {api_key[:5]}...{api_key[-5:] if len(api_key) > 10 else ''}")
+            
+    def search_playlists(self, query, max_results=3):
+        """
+        Search for playlists on YouTube, focusing on YouTube Music playlists
+        
+        Args:
+            query (str): The search query
+            max_results (int): Maximum number of results to return
+            
+        Returns:
+            dict: The YouTube API response or error
+        """
+        if not self.api_key or len(self.api_key) < 10:
+            print(f"❌ Cannot search YouTube: Invalid API key")
+            return {"error": {"message": "Invalid YouTube API key"}, "items": []}
+            
+        url = f"{self.base_url}/search"
+        
+        # Modify query to focus on YouTube Music playlists
+        search_query = f"{query} youtube music playlist"
+        
+        params = {
+            "part": "snippet",
+            "q": search_query,
+            "maxResults": max_results,
+            "type": "playlist",
+            "key": self.api_key
+        }
+        
+        print(f"🎵 Searching for YouTube Music playlists: '{search_query}'")
+        
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            
+            if response.status_code != 200:
+                error_msg = f"YouTube API HTTP error: {response.status_code} - {response.text}"
+                print(f"❌ {error_msg}")
+                return {"error": {"message": error_msg}, "items": []}
+                
+            result = response.json()
+            
+            if 'error' in result:
+                error_message = result['error'].get('message', 'Unknown error')
+                print(f"❌ YouTube API error searching playlists: {error_message}")
+                return result
+                
+            items_count = len(result.get('items', []))
+            print(f"✅ Found {items_count} YouTube playlists for '{query}'")
+            
+            if items_count > 0:
+                for item in result['items']:
+                    playlist_id = item['id'].get('playlistId', 'N/A')
+                    title = item.get('snippet', {}).get('title', 'Unknown')
+                    channel = item.get('snippet', {}).get('channelTitle', 'Unknown')
+                    
+                    # Look for official content
+                    is_official = ("topic" in channel.lower() or 
+                                  "vevo" in channel.lower() or
+                                  "official" in channel.lower() or
+                                  "youtube music" in channel.lower())
+                    
+                    print(f"   Playlist: {title}")
+                    print(f"   Channel: {channel}")
+                    print(f"   Official: {'Yes' if is_official else 'No'}")
+                    print(f"   URL: https://www.youtube.com/playlist?list={playlist_id}")
+                    print(f"   Music URL: https://music.youtube.com/playlist?list={playlist_id}")
+            
+            return result
+            
+        except Exception as e:
+            print(f"❌ Error searching YouTube playlists: {e}")
+            return {"error": {"message": str(e)}, "items": []}
+
+    def search_videos(self, query, max_results=5, prefer_music=True):
+        """
+        Search for videos on YouTube
+        
+        Args:
+            query (str): The search query
+            max_results (int): Maximum number of results to return
+            prefer_music (bool): If True, will try to find YouTube Music links
+        """
+        if not self.api_key or len(self.api_key) < 10:
+            print(f"❌ Cannot search YouTube: Invalid API key")
+            return {"error": {"message": "Invalid YouTube API key"}, "items": []}
+            
+        url = f"{self.base_url}/search"
+        
+        # Add "topic" to search if looking for official music
+        search_query = query
+        if prefer_music and "topic" not in query.lower():
+            search_query = f"{query} topic"
+            print(f"🎵 Modified search to find official topic: '{search_query}'")
+        
+        params = {
+            "part": "snippet",
+            "q": search_query,
+            "maxResults": max_results,
+            "type": "video",
+            "videoCategoryId": "10",  # Music category
+            "key": self.api_key
+        }
+        
+        print(f"🔍 Searching YouTube for: '{search_query}'")
+        print(f"🔑 Using API key: {self.api_key[:5]}...{self.api_key[-5:] if len(self.api_key) > 10 else ''}")
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            
+            # Check for HTTP errors
+            if response.status_code != 200:
+                error_msg = f"YouTube API HTTP error: {response.status_code} - {response.text}"
+                print(f"❌ {error_msg}")
+                
+                # Check for specific errors in the response
+                if "quota" in response.text.lower():
+                    return {
+                        "error": {
+                            "code": 403,
+                            "message": "YouTube API quota exceeded. Try again tomorrow."
+                        }
+                    }
+                elif "expired" in response.text.lower():
+                    return {
+                        "error": {
+                            "code": 400,
+                            "message": "YouTube API key has expired. Please renew the API key."
+                        }
+                    }
+                    
+                return {"error": {"message": error_msg}, "items": []}
+                
+            result = response.json()
+            
+            # Check for API errors
+            if 'error' in result:
+                error_message = result['error'].get('message', 'Unknown error')
+                error_code = result['error'].get('code', 'Unknown code')
+                print(f"❌ YouTube API error: {error_code} - {error_message}")
+                
+                # Detect specific error types
+                if 'quota' in error_message.lower():
+                    print("⚠️ YouTube API quota exceeded. Wait 24 hours or use a different API key.")
+                elif 'expired' in error_message.lower():
+                    print("⚠️ YouTube API key has expired. Please renew the API key.")
+                    
+                return result
+            
+            items_count = len(result.get('items', []))
+            print(f"✅ Found {items_count} YouTube results for '{query}'")
+            
+            # Print first result for debugging
+            if items_count > 0:
+                first_item = result['items'][0]
+                video_id = first_item['id'].get('videoId', 'N/A')
+                title = first_item.get('snippet', {}).get('title', 'Unknown')
+                print(f"   First result: {title} (ID: {video_id})")
+                print(f"   URL: https://www.youtube.com/watch?v={video_id}")
+            
+            return result
+        except requests.exceptions.Timeout:
+            print(f"⏱️ YouTube API request timed out for '{query}'")
+            return {"error": {"message": "Request timed out"}, "items": []}
+        except requests.exceptions.RequestException as e:
+            print(f"❌ YouTube API request failed: {e}")
+            return {"error": {"message": f"Request failed: {str(e)}"}, "items": []}
+        except Exception as e:
+            print(f"❌ Unexpected error in YouTube search: {e}")
+            return {"error": {"message": f"Unexpected error: {str(e)}"}, "items": []}
+
+
+def get_youtube_search_url(query):
+    """Generate a YouTube search URL for a query"""
+    # Convert spaces to + for URL format and properly encode
+    encoded_query = urllib.parse.quote(query)
+    return f"https://www.youtube.com/results?search_query={encoded_query}"
+
+
+def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True):
+    """
+    Get a YouTube Music Topic URL for an artist or release.
+    Tries YouTube API first, falls back to stored links if API fails.
+    
+    Args:
+        artist (str): Artist name
+        release_title (str, optional): Release title. Defaults to None.
+        try_music_link (bool): Whether to try finding a YouTube Music link
+        
+    Returns:
+        str: YouTube URL (direct video or search URL)
+    """
+    # Format the search query
+    search_query = f"{artist} - {release_title}" if release_title else f"{artist} topic"
+    
+    if try_music_link:
+        search_query += " official"
+    
+    print(f"🎵 Looking for YouTube link: {search_query}")
+    
+    # STEP 1: Try to use YouTube API first
+    try:
+        print(f"🔍 Attempting YouTube API search first...")
+        youtube = YouTubeAPI()  # Will load API key automatically
+        
+        # Check if we have a valid API key before making the request
+        if not youtube.api_key or len(youtube.api_key) < 10:
+            print(f"⚠️ YouTube API key invalid or missing, length: {len(youtube.api_key) if youtube.api_key else 0}")
+            raise ValueError("Invalid YouTube API key")
+        
+        # First try searching for playlists if it's an album or we have a release title
+        if try_music_link and release_title:
+            print(f"🎵 Looking for YouTube Music playlist for album/release...")
+            
+            # For albums, try to find a playlist
+            playlist_query = f"{artist} {release_title} album"
+            playlist_results = youtube.search_playlists(playlist_query, max_results=3)
+            
+            if not 'error' in playlist_results and playlist_results.get('items') and len(playlist_results['items']) > 0:
+                # Look for official playlists
+                best_playlist = None
+                
+                for item in playlist_results['items']:
+                    playlist_id = item['id'].get('playlistId')
+                    title = item['snippet']['title']
+                    channel = item['snippet']['channelTitle']
+                    
+                    # Check if it's likely an official playlist
+                    is_official = (" - Topic" in channel or 
+                                  "VEVO" in channel or 
+                                  "YouTube Music" in channel or
+                                  "Official" in channel or
+                                  (artist.lower() in channel.lower() and "topic" in channel.lower()))
+                    
+                    has_keywords = (artist.lower() in title.lower() and 
+                                   any(word.lower() in title.lower() for word in release_title.lower().split()))
+                    
+                    # For official channels, prioritize this result
+                    if is_official and has_keywords:
+                        best_playlist = item
+                        break
+                    # For non-official channels, check if title has both artist and release name
+                    elif has_keywords and not best_playlist:
+                        best_playlist = item
+                        # Keep searching for better matches
+                
+                if best_playlist:
+                    playlist_id = best_playlist['id']['playlistId']
+                    title = best_playlist['snippet']['title']
+                    channel = best_playlist['snippet']['channelTitle']
+                    
+                    # Check if it's an official channel before using the YouTube Music URL
+                    is_official = (" - Topic" in channel or 
+                                  "VEVO" in channel or 
+                                  "YouTube Music" in channel or
+                                  "Official" in channel)
+                    
+                    # Format as a YouTube Music URL for official sources, otherwise regular YouTube
+                    if is_official:
+                        playlist_url = f"https://music.youtube.com/playlist?list={playlist_id}"
+                        print(f"✅ SUCCESS: Found official YouTube Music playlist: {playlist_url}")
+                    else:
+                        playlist_url = f"https://music.youtube.com/playlist?list={playlist_id}"
+                        print(f"✅ SUCCESS: Found YouTube Music playlist (non-official): {playlist_url}")
+                    
+                    print(f"   Title: {title}")
+                    print(f"   Channel: {channel}")
+                    
+                    return playlist_url
+        
+        # If no playlist found or not looking for one, search for videos
+        # Try searching for YouTube Music specific content first
+        if try_music_link:
+            print(f"🎵 Searching for YouTube Music link...")
+            
+            # Try adding "topic" to find official artist channels
+            music_query = f"{search_query} music.youtube"
+            
+            music_result = youtube.search_videos(music_query, max_results=3, prefer_music=True)
+            
+            # Check for music-specific results
+            if not 'error' in music_result and music_result.get('items') and len(music_result['items']) > 0:
+                # Look through results for YouTube Music links
+                for item in music_result['items']:
+                    video_id = item['id']['videoId']
+                    title = item['snippet']['title']
+                    channel = item['snippet']['channelTitle']
+                    
+                    # Look for official topic channels
+                    if " - Topic" in channel or "VEVO" in channel or "Official" in channel or "official" in title:
+                        youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+                        # Also offer YouTube Music URL
+                        youtube_music_url = f"https://music.youtube.com/watch?v={video_id}"
+                        
+                        print(f"✅ SUCCESS: Found official YouTube Music URL: {youtube_music_url}")
+                        print(f"   Title: {title}")
+                        print(f"   Channel: {channel}")
+                        
+                        # Return YouTube Music URL for official content
+                        return youtube_music_url
+                
+                print(f"ℹ️ Found results but none were from official artist channels")
+        
+        # If no YouTube Music-specific results, do a regular search
+        result = youtube.search_videos(search_query, max_results=3, prefer_music=True)
+        
+        # Check for API errors
+        if 'error' in result:
+            error_message = result['error'].get('message', 'Unknown error')
+            print(f"⚠️ YouTube API returned error: {error_message}")
+            raise ValueError(f"YouTube API error: {error_message}")
+            
+        # Check if we got valid results from the API
+        if result.get('items') and len(result['items']) > 0:
+            best_match = None
+            
+            # Look for the best match among results
+            for item in result['items']:
+                video_id = item['id']['videoId']
+                title = item['snippet']['title']
+                channel = item['snippet']['channelTitle']
+                
+                # Prioritize official channels
+                is_official = (" - Topic" in channel or 
+                               "VEVO" in channel or 
+                               "Official" in channel or
+                               "official" in title)
+                               
+                # Check if the title contains both artist and release (if provided)
+                has_keywords = artist.lower() in title.lower()
+                if release_title:
+                    has_release = any(word.lower() in title.lower() for word in release_title.lower().split())
+                    has_keywords = has_keywords and has_release
+                
+                if best_match is None or (is_official and has_keywords):
+                    best_match = item
+                    # If it's official and has the right keywords, no need to check further
+                    if is_official and has_keywords:
+                        break
+            
+            if best_match:
+                video_id = best_match['id']['videoId']
+                title = best_match['snippet']['title']
+                channel = best_match['snippet']['channelTitle']
+                
+                # For official channels or "Topic" channels, use YouTube Music URL
+                if " - Topic" in channel or "VEVO" in channel or "Official" in channel:
+                    youtube_music_url = f"https://music.youtube.com/watch?v={video_id}"
+                    print(f"✅ SUCCESS: Found official YouTube Music URL: {youtube_music_url}")
+                    print(f"   Title: {title}")
+                    print(f"   Channel: {channel}")
+                    return youtube_music_url
+                
+                # For non-official channels, use regular YouTube URL
+                youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+                print(f"✅ SUCCESS: Found YouTube URL via API: {youtube_url}")
+                print(f"   Title: {title}")
+                print(f"   Channel: {channel}")
+                return youtube_url
+        else:
+            print(f"⚠️ YouTube API returned no results for: {search_query}")
+            raise ValueError("No YouTube results found")
+            
+    except Exception as e:
+        print(f"⚠️ YouTube API search failed: {str(e)}")
+        
+    # STEP 2: Try fallback links from file
+    print(f"🔄 API search failed, trying fallback links...")
+    try:
+        # Check if fallback file exists
+        if not os.path.exists('youtube_fallback_links.json'):
+            print(f"⚠️ Fallback file 'youtube_fallback_links.json' not found")
+            raise FileNotFoundError("Fallback links file not found")
+            
+        with open('youtube_fallback_links.json', 'r') as f:
+            fallback_links = json.load(f)
+            print(f"📂 Loaded fallback links file with {len(fallback_links)} entries")
+        
+        # Try to find the specific release if title was provided
+        if release_title:
+            key = f"{artist} - {release_title}".lower()
+            if key in fallback_links:
+                fallback_url = fallback_links[key]
+                print(f"✅ Found fallback YouTube link for specific release: {key}")
+                return fallback_url
+            else:
+                print(f"ℹ️ No specific fallback link for release: {key}")
+        
+        # Try to find just the artist
+        artist_key = artist.lower()
+        if artist_key in fallback_links:
+            fallback_url = fallback_links[artist_key]
+            print(f"✅ Found fallback YouTube link for artist: {artist_key}")
+            return fallback_url
+        else:
+            print(f"ℹ️ No fallback link found for artist: {artist_key}")
+            
+    except Exception as e:
+        print(f"⚠️ Failed to get fallback YouTube link: {str(e)}")
+    
+    # STEP 3: Last resort - return a search URL
+    search_url = get_youtube_search_url(search_query)
+    print(f"ℹ️ FALLBACK: Using YouTube search URL as last resort: {search_url}")
+    return search_url
 
 # Pagination Views
 class ReleasePaginationView(discord.ui.View):
@@ -67,11 +504,18 @@ class ReleasePaginationView(discord.ui.View):
         page_albums = [r for r in page_releases if r['type'] == 'album']
         page_singles = [r for r in page_releases if r['type'] == 'single']
         
+        # Use our global function for YouTube links (will be more consistent)
+        def get_release_youtube_link(artist, track_name):
+            """Get YouTube link with detailed logging for releases page"""
+            print(f"🎵 Getting YouTube link for release page: {artist} - {track_name}")
+            return get_youtube_music_topic_url(artist, track_name)
+            
         # Helper function to create release line with smart truncation
         def create_release_line(release_info, max_length=80):
             artist = release_info['artist']
             release = release_info['release']
             spotify_link = release.get('external_urls', {}).get('spotify', '')
+            youtube_music_link = get_release_youtube_link(artist, release['name'])
             
             # Smart truncation based on available space
             artist_name = artist[:25] + "..." if len(artist) > 25 else artist
@@ -81,8 +525,16 @@ class ReleasePaginationView(discord.ui.View):
             remaining_space = max_length - base_length
             release_name = release['name'][:max(10, remaining_space-5)] + "..." if len(release['name']) > remaining_space else release['name']
             
+            # Create links list
+            links = []
             if spotify_link:
-                return f"• **{artist_name}** - [{release_name}]({spotify_link}) ({release['release_date']})"
+                links.append(f"[Spotify]({spotify_link})")
+            if youtube_music_link:
+                links.append(f"[YouTube]({youtube_music_link})")
+                
+            if links:
+                links_str = " | ".join(links)
+                return f"• **{artist_name}** - {release_name} ({release['release_date']}) {links_str}"
             else:
                 return f"• **{artist_name}** - {release_name} ({release['release_date']})"
         
@@ -1051,6 +1503,198 @@ class MusicGroup(app_commands.Group):
     @app_commands.command(name='stats', description='Show bot statistics')
     async def stats(self, interaction: discord.Interaction):
         await stats_command(interaction)
+        
+    @app_commands.command(name='youtube', description='Search YouTube for a song (for debugging)')
+    @app_commands.describe(query="The song to search for (format: Artist - Song)")
+    async def youtube(self, interaction: discord.Interaction, query: str):
+        """Search YouTube for a song (debugging tool)"""
+        bot = interaction.client
+        
+        await interaction.response.defer()
+        
+        try:
+            print(f"🔍 YouTube search requested for: {query}")
+            
+            # Initialize the YouTube API module
+            api_key = config.YOUTUBE_API_KEY or os.environ.get('YOUTUBE_API_KEY', '')
+            youtube_api = YouTubeAPI(api_key)
+            
+            # Show detailed diagnostic information
+            debug_info = f"```\n"
+            debug_info += f"API Key Status: "
+            
+            if not api_key or len(api_key) < 10:
+                debug_info += "❌ INVALID (missing or too short)\n"
+            else:
+                debug_info += f"✅ VALID (masked: {api_key[:5]}...{api_key[-5:] if len(api_key) > 10 else ''})\n"
+            
+            debug_info += f"API Key Source: "
+            if config.YOUTUBE_API_KEY:
+                debug_info += "config.py\n"
+            elif os.environ.get('YOUTUBE_API_KEY'):
+                debug_info += "environment variable\n"
+            else:
+                debug_info += "NOT FOUND\n"
+                
+            debug_info += f"Query: {query}\n"
+            debug_info += f"YouTube Data API v3 URL: {youtube_api.base_url}/search\n"
+            debug_info += "```"
+            
+            # Format search query
+            search_results = youtube_api.search_videos(query, max_results=5)
+            
+            if 'error' in search_results:
+                error_message = search_results['error'].get('message', 'Unknown error')
+                error_code = search_results['error'].get('code', 'Unknown')
+                
+                # Special handling for specific errors
+                if "expired" in error_message.lower():
+                    embed = discord.Embed(
+                        title="❌ YouTube API Key Expired",
+                        description="The YouTube API key has expired. Please generate a new API key in the Google Cloud Console.",
+                        color=0xff0000
+                    )
+                    embed.add_field(
+                        name="Error Details", 
+                        value=f"Code: {error_code}\nMessage: {error_message}",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="What to do", 
+                        value="1. Go to Google Cloud Console\n2. Navigate to API & Services > Credentials\n3. Create a new API key or renew the existing one\n4. Update your .env file with the new key",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="Debug Info", 
+                        value=debug_info,
+                        inline=False
+                    )
+                elif "quota" in error_message.lower():
+                    embed = discord.Embed(
+                        title="❌ YouTube API Quota Exceeded",
+                        description="You've reached the daily quota limit for YouTube API requests.",
+                        color=0xffa500
+                    )
+                    embed.add_field(
+                        name="What happened", 
+                        value="YouTube API has a daily quota limit (usually 10,000 units). Each search request uses 100 units.",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="What to do", 
+                        value="**Option 1:** Wait until tomorrow when the quota resets\n**Option 2:** Create a new Google Cloud project (not just a new key)\n**Option 3:** Use a different Google account to create a new project and API key",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="Creating a new project", 
+                        value="1. Go to [Google Cloud Console](https://console.cloud.google.com)\n2. Create a new project\n3. Enable YouTube Data API v3\n4. Create a new API key\n5. Update your .env file with the new key",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="Debug Info", 
+                        value=debug_info,
+                        inline=False
+                    )
+                else:
+                    embed = discord.Embed(
+                        title="❌ YouTube Search Failed",
+                        description=f"Error: {error_message}",
+                        color=0xff0000
+                    )
+                    embed.add_field(
+                        name="Error Details", 
+                        value=f"Code: {error_code}\nMessage: {error_message}",
+                        inline=False
+                    )
+                    embed.add_field(
+                        name="Debug Info", 
+                        value=debug_info,
+                        inline=False
+                    )
+                    
+                    # Add fallback search link
+                    fallback_url = get_youtube_search_url(query)
+                    embed.add_field(
+                        name="Fallback Search Link", 
+                        value=f"[Search YouTube for '{query}'](${fallback_url})",
+                        inline=False
+                    )
+                
+                await interaction.followup.send(embed=embed)
+                return
+                
+            if not search_results.get('items', []):
+                embed = discord.Embed(
+                    title="🔍 No YouTube Results",
+                    description=f"No videos found for query: `{query}`",
+                    color=0xffa500
+                )
+                embed.add_field(
+                    name="Debug Info", 
+                    value=debug_info,
+                    inline=False
+                )
+                fallback_url = get_youtube_search_url(query)
+                embed.add_field(
+                    name="Try manual search", 
+                    value=f"[Search YouTube for '{query}'](${fallback_url})",
+                    inline=False
+                )
+                await interaction.followup.send(embed=embed)
+                return
+                
+            # Create the results embed
+            embed = discord.Embed(
+                title=f"🎵 YouTube Results for: {query}",
+                description=f"Found {len(search_results.get('items', []))} videos",
+                color=0xff0000  # YouTube red
+            )
+            
+            for i, item in enumerate(search_results.get('items', [])[:5], 1):
+                video_id = item['id'].get('videoId')
+                if video_id:
+                    title = item.get('snippet', {}).get('title', 'Unknown')
+                    channel = item.get('snippet', {}).get('channelTitle', 'Unknown channel')
+                    url = f"https://www.youtube.com/watch?v={video_id}"
+                    
+                    embed.add_field(
+                        name=f"{i}. {title}",
+                        value=f"Channel: {channel}\n[Watch on YouTube]({url})",
+                        inline=False
+                    )
+            
+            # Add debug info
+            embed.add_field(
+                name="Debug Info", 
+                value=debug_info,
+                inline=False
+            )
+                
+            await interaction.followup.send(embed=embed)
+            
+        except Exception as e:
+            error_msg = f"❌ Error searching YouTube: {str(e)}"
+            print(error_msg)
+            
+            # Create error embed with traceback
+            error_embed = discord.Embed(
+                title="❌ Unexpected Error",
+                description=f"An error occurred while searching YouTube: {str(e)}",
+                color=0xff0000
+            )
+            
+            import traceback
+            tb = traceback.format_exc()
+            if len(tb) > 1000:
+                tb = tb[:997] + "..."
+                
+            error_embed.add_field(
+                name="Error Details", 
+                value=f"```python\n{tb}```",
+                inline=False
+            )
+            
+            await interaction.followup.send(embed=error_embed)
 
 # Initialize and run bot
 async def health_check(request):

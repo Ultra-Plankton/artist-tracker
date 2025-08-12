@@ -1,6 +1,6 @@
 # Music Updater Bot 🎵
 
-A Discord bot that tracks your favorite artists and sends notifications when they release new music via Spotify API integration.
+A Discord bot that tracks your favorite artists and sends notifications when they release new music via Spotify API integration with YouTube Music links.
 
 ## Features
 
@@ -9,6 +9,7 @@ A Discord bot that tracks your favorite artists and sends notifications when the
 - 🎯 **Smart Search** - Intelligent artist matching with exact name prioritization
 - 📊 **Rich Information** - See follower counts, genres, popularity, and release details
 - 🎧 **Spotify Integration** - Direct links to listen on Spotify
+- 📺 **YouTube Music Integration** - Links to music videos on YouTube
 - ⚙️ **Flexible Notifications** - Configure which channels receive notifications
 - 🎪 **Discord Slash Commands** - Modern Discord command interface
 
@@ -27,7 +28,9 @@ A Discord bot that tracks your favorite artists and sends notifications when the
 
 ### Prerequisites
 - Python 3.8 or higher
-- Spotify Developer Account (optional but recommended)
+- Spotify Developer Account (for Spotify API)
+- Google Developer Account (for YouTube Data API)
+- Discord Bot Token
 
 ### Setup
 
@@ -150,6 +153,7 @@ This project is designed to grow step by step. Next planned features:
    DISCORD_BOT_TOKEN=your_discord_bot_token
    SPOTIFY_CLIENT_ID=your_spotify_client_id
    SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   YOUTUBE_API_KEY=your_youtube_api_key
    ```
 
 4. **Deploy** - Render will automatically deploy from your main branch
