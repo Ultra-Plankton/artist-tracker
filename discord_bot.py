@@ -12,6 +12,7 @@ import sys
 import traceback
 import sys
 from datetime import datetime, time, timedelta
+import pytz  # Import the pytz library for timezone handling
 from aiohttp import web
 import config
 from spotify_api import SpotifyAPI
@@ -701,14 +702,21 @@ class MusicBot(commands.Bot):
 
     def setup_tasks(self):
         """Set up scheduled tasks for checking releases"""
-        @tasks.loop(time=[time(9, 0), time(18, 0)])
+        # Define Eastern Time zone
+        eastern = pytz.timezone('US/Eastern')
+        
+        @tasks.loop(time=[time(0, 0), time(18, 0)])
         async def check_releases_scheduled():
             await self.check_and_notify_releases()
-        @tasks.loop(time=time(0, 0))
+            
+        @tasks.loop(time=time(0, 0))  # Midnight UTC, will check if it's Friday in EST
         async def weekly_summary_task():
-            if datetime.now().weekday() == 4:
-                print("📅 Running weekly summary for Friday...")
+            # Convert UTC time to Eastern Time
+            now_eastern = datetime.now(pytz.UTC).astimezone(eastern)
+            if now_eastern.weekday() == 4:  # 4 is Friday (0 is Monday, 6 is Sunday)
+                print(f"📅 Running weekly summary for Friday... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
                 await self.send_weekly_summary()
+                
         self.check_releases_task = check_releases_scheduled
         self.weekly_summary_task = weekly_summary_task
 
@@ -775,7 +783,7 @@ class MusicBot(commands.Bot):
             print('🔄 PRODUCTION MODE: Release checks twice daily (9 AM & 6 PM)')
         if hasattr(self, 'weekly_summary_task') and not self.weekly_summary_task.is_running():
             self.weekly_summary_task.start()
-            print('📅 Weekly summary task started (Fridays at midnight)')
+            print('📅 Weekly summary task started (Fridays at midnight EST)')
         
         # Send startup message if channels are configured
         if self.notification_channels:
