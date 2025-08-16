@@ -708,16 +708,25 @@ class MusicBot(commands.Bot):
         @tasks.loop(time=[time(0, 0), time(18, 0)])
         async def check_releases_scheduled():
             await self.check_and_notify_releases()
-            
-        @tasks.loop(time=time(0, 0))  # Midnight UTC, will check if it's Friday in EST
+        
+        # Create a more robust weekly task that explicitly checks
+        # if it's 12:05 AM on Friday in Eastern Time
+        @tasks.loop(hours=1)  # Check every hour
         async def weekly_summary_task():
-            # Convert UTC time to Eastern Time
+            # Get current time in Eastern timezone
             now_eastern = datetime.now(pytz.UTC).astimezone(eastern)
-            if now_eastern.weekday() == 4:  # 4 is Friday (0 is Monday, 6 is Sunday)
-                print(f"📅 Running weekly summary for Friday... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
-                await self.send_weekly_summary()
+            
+            # Check if it's Friday
+            if now_eastern.weekday() == 4:
+                # Check if it's between 12:00 AM and 1:00 AM (to catch 12:05 AM)
+                if now_eastern.hour == 0:
+                    # Check if it's between 12:05 AM and 12:10 AM to avoid running multiple times
+                    if 5 <= now_eastern.minute < 10:
+                        print(f"📅 Running weekly summary for Friday... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
+                        await self.send_weekly_summary()
                 
         self.check_releases_task = check_releases_scheduled
+        self.weekly_summary_task = weekly_summary_task
         self.weekly_summary_task = weekly_summary_task
 
     async def load_data(self):
@@ -783,7 +792,7 @@ class MusicBot(commands.Bot):
             print('🔄 PRODUCTION MODE: Release checks twice daily (9 AM & 6 PM)')
         if hasattr(self, 'weekly_summary_task') and not self.weekly_summary_task.is_running():
             self.weekly_summary_task.start()
-            print('📅 Weekly summary task started (Fridays at midnight EST)')
+            print('📅 Weekly summary task started (Fridays at 12:05 AM EST)')
         
         # Send startup message if channels are configured
         if self.notification_channels:
