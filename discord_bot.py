@@ -1018,19 +1018,20 @@ class MusicBot(commands.Bot):
         
         print("📅 Generating weekly summary...")
         
-        # Calculate date range for the past week (Friday to Friday)
+        # Calculate date range for the past week (Saturday to Friday, 6 days back)
         today = datetime.now().date()
         # Find the most recent Friday (including today if it's Friday)
         days_since_friday = (today.weekday() - 4) % 7
         this_friday = today - timedelta(days=days_since_friday)
-        last_friday = this_friday - timedelta(days=7)
+        # Go back 6 days to get the previous Saturday
+        last_saturday = this_friday - timedelta(days=6)
 
-        week_start = last_friday
+        week_start = last_saturday
         week_end = this_friday
 
         week_start_str = week_start.strftime("%Y-%m-%d")
         week_end_str = week_end.strftime("%Y-%m-%d")
-        
+
         print(f"📅 Collecting releases from {week_start_str} to {week_end_str}")
         
         weekly_releases = []
