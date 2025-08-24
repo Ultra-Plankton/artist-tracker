@@ -1,3 +1,5 @@
+import requests
+import urllib.parse
 """
 Discord Bot integration for Music Updater
 Handles Discord notifications and slash commands for artist tracking
@@ -457,6 +459,64 @@ def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True)
 
 # Pagination Views
 class ReleasePaginationView(discord.ui.View):
+    def get_apple_music_link(self, artist, release_name, is_album=True):
+        """Fetch Apple Music link for an album or single using iTunes Search API"""
+        base_url = "https://itunes.apple.com/search"
+        query = f"{artist} {release_name}"
+        params = {
+            "term": query,
+            "entity": "album" if is_album else "song",
+            "limit": 1
+        }
+        try:
+            response = requests.get(base_url, params=params, timeout=5)
+            if response.status_code == 200:
+                results = response.json().get("results", [])
+                if results:
+                    # For albums, use collectionViewUrl; for singles, use trackViewUrl
+                    if is_album and "collectionViewUrl" in results[0]:
+                        return results[0]["collectionViewUrl"]
+                    elif not is_album and "trackViewUrl" in results[0]:
+                        return results[0]["trackViewUrl"]
+        except Exception as e:
+            print(f"Apple Music lookup failed: {e}")
+        return None
+
+    def get_amazon_music_link(self, artist, release_name, is_album=True):
+        """Fetch Amazon Music link for an album or single using Amazon search page scraping"""
+        import urllib.parse
+        import re
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; MusicUpdaterBot/1.0)"
+        }
+        # Amazon Music search URL
+        query = f"{artist} {release_name}"
+        encoded_query = urllib.parse.quote(query)
+        if is_album:
+            search_url = f"https://music.amazon.com/search/albums/{encoded_query}"
+        else:
+            search_url = f"https://music.amazon.com/search/songs/{encoded_query}"
+        try:
+            resp = requests.get(search_url, headers=headers, timeout=5)
+            if resp.status_code == 200:
+                # Try to find the first album/song link in the HTML
+                # Look for /albums/ or /albums/B... or /songs/B... links
+                match = re.search(r'"(/albums/[^"]+)"', resp.text)
+                if not match and not is_album:
+                    match = re.search(r'"(/songs/[^"]+)"', resp.text)
+                if match:
+                    found_link = f"https://music.amazon.com{match.group(1)}"
+                    print(f"[AmazonMusic] Found link for '{artist} - {release_name}': {found_link}")
+                    return found_link
+                # If not found, just return the search page
+                print(f"[AmazonMusic] No direct album/song link found for '{artist} - {release_name}', returning search page: {search_url}")
+                return search_url
+            else:
+                print(f"[AmazonMusic] HTTP error {resp.status_code} for '{artist} - {release_name}'")
+        except Exception as e:
+            print(f"Amazon Music lookup failed: {e}")
+        print(f"[AmazonMusic] No link found for '{artist} - {release_name}'")
+        return None
     """Pagination view for release notifications"""
     
     def __init__(self, albums, singles, *, timeout=300):
@@ -517,73 +577,96 @@ class ReleasePaginationView(discord.ui.View):
             release = release_info['release']
             spotify_link = release.get('external_urls', {}).get('spotify', '')
             youtube_music_link = get_release_youtube_link(artist, release['name'])
-            
+            is_album = release_info['type'] == 'album'
+            apple_music_link = self.get_apple_music_link(artist, release['name'], is_album=is_album)
             # Smart truncation based on available space
             artist_name = artist[:25] + "..." if len(artist) > 25 else artist
-            
             # Calculate remaining space for release name
             base_length = len(f"• **{artist_name}** - [] ({release['release_date']})")
             remaining_space = max_length - base_length
             release_name = release['name'][:max(10, remaining_space-5)] + "..." if len(release['name']) > remaining_space else release['name']
-            
             # Create links list
             links = []
             if spotify_link:
                 links.append(f"[Spotify]({spotify_link})")
             if youtube_music_link:
                 links.append(f"[YouTube]({youtube_music_link})")
-                
+            if apple_music_link:
+                links.append(f"[Apple Music]({apple_music_link})")
+            if links:
+                links_str = " | ".join(links)
+                return f"• **{artist_name}** - {release_name} ({release['release_date']}) {links_str}"
+            else:
+                return f"• **{artist_name}** - {release_name} ({release['release_date']})"
+
+            # Smart truncation based on available space
+            artist_name = artist[:25] + "..." if len(artist) > 25 else artist
+
+            # Calculate remaining space for release name
+            base_length = len(f"• **{artist_name}** - [] ({release['release_date']})")
+            remaining_space = max_length - base_length
+            release_name = release['name'][:max(10, remaining_space-5)] + "..." if len(release['name']) > remaining_space else release['name']
+
+            # Create links list
+            links = []
+            if spotify_link:
+                links.append(f"[Spotify]({spotify_link})")
+            if youtube_music_link:
+                links.append(f"[YouTube]({youtube_music_link})")
+            if apple_music_link:
+                links.append(f"[Apple Music]({apple_music_link})")
+
             if links:
                 links_str = " | ".join(links)
                 return f"• **{artist_name}** - {release_name} ({release['release_date']}) {links_str}"
             else:
                 return f"• **{artist_name}** - {release_name} ({release['release_date']})"
         
-        # Add albums for this page with character limit checking
+        # Add albums for this page, splitting into multiple fields/messages if needed
         if page_albums:
-            album_lines = []
+            max_field_length = 1024
+            album_chunks = []
+            chunk = []
             current_length = 0
-            max_field_length = 900  # Safe limit under 1024
-            
             for album in page_albums:
                 line = create_release_line(album)
-                # Check if adding this line would exceed the limit
                 if current_length + len(line) + 1 > max_field_length:
-                    remaining = len(page_albums) - len(album_lines)
-                    if remaining > 0:
-                        album_lines.append(f"*...and {remaining} more albums on this page*")
-                    break
-                album_lines.append(line)
+                    album_chunks.append(chunk)
+                    chunk = []
+                    current_length = 0
+                chunk.append(line)
                 current_length += len(line) + 1
-            
-            embed.add_field(
-                name=f"💿 Albums on this page ({len(page_albums)})",
-                value='\n'.join(album_lines),
-                inline=False
-            )
-        
-        # Add singles for this page with character limit checking
+            if chunk:
+                album_chunks.append(chunk)
+            for idx, chunk in enumerate(album_chunks):
+                embed.add_field(
+                    name=f"💿 Albums on this page ({len(chunk)})" + (f" (Part {idx+1})" if len(album_chunks) > 1 else ""),
+                    value='\n'.join(chunk),
+                    inline=False
+                )
+
+        # Add singles for this page, splitting into multiple fields/messages if needed
         if page_singles:
-            single_lines = []
+            max_field_length = 1024
+            single_chunks = []
+            chunk = []
             current_length = 0
-            max_field_length = 900  # Safe limit under 1024
-            
             for single in page_singles:
                 line = create_release_line(single)
-                # Check if adding this line would exceed the limit
                 if current_length + len(line) + 1 > max_field_length:
-                    remaining = len(page_singles) - len(single_lines)
-                    if remaining > 0:
-                        single_lines.append(f"*...and {remaining} more singles on this page*")
-                    break
-                single_lines.append(line)
+                    single_chunks.append(chunk)
+                    chunk = []
+                    current_length = 0
+                chunk.append(line)
                 current_length += len(line) + 1
-            
-            embed.add_field(
-                name=f"🎵 Singles on this page ({len(page_singles)})",
-                value='\n'.join(single_lines),
-                inline=False
-            )
+            if chunk:
+                single_chunks.append(chunk)
+            for idx, chunk in enumerate(single_chunks):
+                embed.add_field(
+                    name=f"🎵 Singles on this page ({len(chunk)})" + (f" (Part {idx+1})" if len(single_chunks) > 1 else ""),
+                    value='\n'.join(chunk),
+                    inline=False
+                )
         
         # Add summary (keep this short)
         embed.add_field(
@@ -709,24 +792,16 @@ class MusicBot(commands.Bot):
         async def check_releases_scheduled():
             await self.check_and_notify_releases()
         
-        # Create a more robust weekly task that explicitly checks
-        # if it's 12:05 AM on Friday in Eastern Time
-        @tasks.loop(hours=1)  # Check every hour
+        # Schedule weekly summary to run exactly at 12:05 AM Eastern Time every Friday
+        @tasks.loop(time=[time(0, 5)])
         async def weekly_summary_task():
-            # Get current time in Eastern timezone
             now_eastern = datetime.now(pytz.UTC).astimezone(eastern)
-            
-            # Check if it's Friday
+            # Only run if it's Friday (weekday() == 4)
             if now_eastern.weekday() == 4:
-                # Check if it's between 12:00 AM and 1:00 AM (to catch 12:05 AM)
-                if now_eastern.hour == 0:
-                    # Check if it's between 12:05 AM and 12:10 AM to avoid running multiple times
-                    if 5 <= now_eastern.minute < 10:
-                        print(f"📅 Running weekly summary for Friday... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
-                        await self.send_weekly_summary()
-                
+                print(f"📅 Running weekly summary for Friday at 12:05 AM... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
+                await self.send_weekly_summary()
+
         self.check_releases_task = check_releases_scheduled
-        self.weekly_summary_task = weekly_summary_task
         self.weekly_summary_task = weekly_summary_task
 
     async def load_data(self):
@@ -1003,43 +1078,77 @@ class MusicBot(commands.Bot):
             print("ℹ️  Weekly summary sent: no new releases")
 
     async def send_weekly_summary_notifications(self, weekly_releases, week_start, week_end):
-        """Send formatted weekly summary notifications"""
-        # Group releases by type
+        """Send formatted weekly summary notifications, splitting into multiple embeds if needed."""
         albums = [r for r in weekly_releases if r['type'] == 'album']
         singles = [r for r in weekly_releases if r['type'] == 'single']
-        
-        # Create custom pagination view for weekly summary
+
         class WeeklySummaryView(ReleasePaginationView):
             def create_embed(self):
-                # Use the parent method but customize the title and description
                 embed = super().create_embed()
-                
                 week_start_formatted = week_start.strftime("%B %d")
                 week_end_formatted = week_end.strftime("%B %d, %Y")
-                
                 embed.title = f"🗓️ Weekly Release Summary"
                 embed.description = f"**{week_start_formatted} - {week_end_formatted}**\nPage {self.current_page + 1} of {self.total_pages}"
-                embed.color = 0x9932CC  # Purple for weekly summaries
-                
-                # Update footer
+                embed.color = 0x9932CC
                 embed.set_footer(text="Music Updater Bot • Weekly Summary")
                 return embed
-        
-        # Send to all notification channels
+
+        def split_embeds(view):
+            embeds = []
+            for page in range(view.total_pages):
+                view.current_page = page
+                embed = view.create_embed()
+                # Split fields into smaller chunks if any field is too long
+                new_fields = []
+                for field in embed.fields:
+                    if len(field.value) > 1024:
+                        lines = field.value.split('\n')
+                        chunk = []
+                        chunk_len = 0
+                        part = 1
+                        for line in lines:
+                            if chunk_len + len(line) + 1 > 1024:
+                                # Add part number to name if splitting
+                                name = f"{field.name} (Part {part})" if part > 1 or len(lines) > 1 else field.name
+                                new_fields.append({'name': name, 'value': '\n'.join(chunk), 'inline': field.inline})
+                                chunk = []
+                                chunk_len = 0
+                                part += 1
+                            chunk.append(line)
+                            chunk_len += len(line) + 1
+                        if chunk:
+                            name = f"{field.name} (Part {part})" if part > 1 or len(lines) > 1 else field.name
+                            new_fields.append({'name': name, 'value': '\n'.join(chunk), 'inline': field.inline})
+                    else:
+                        new_fields.append({'name': field.name, 'value': field.value, 'inline': field.inline})
+                # Now, build embeds from new_fields, keeping under 6000 chars
+                temp_embed = None
+                temp_len = 0
+                for nf in new_fields:
+                    if temp_embed is None:
+                        temp_embed = view.create_embed()
+                        temp_embed.clear_fields()
+                        temp_len = len(temp_embed.description or '') + len(temp_embed.title or '')
+                    field_len = len(nf['name']) + len(nf['value'])
+                    if temp_len + field_len > 5900 or len(temp_embed.fields) >= 25:
+                        embeds.append(temp_embed)
+                        temp_embed = view.create_embed()
+                        temp_embed.clear_fields()
+                        temp_len = len(temp_embed.description or '') + len(temp_embed.title or '')
+                    temp_embed.add_field(name=nf['name'], value=nf['value'], inline=nf['inline'])
+                    temp_len += field_len
+                if temp_embed and len(temp_embed.fields) > 0:
+                    embeds.append(temp_embed)
+            return embeds
+
         for channel_id in self.notification_channels:
             channel = self.get_channel(channel_id)
             if isinstance(channel, (discord.TextChannel, discord.Thread)):
                 try:
-                    # Create weekly pagination view
                     view = WeeklySummaryView(albums, singles)
-                    embed = view.create_embed()
-                    
-                    # Only show pagination buttons if there are multiple pages
-                    if view.total_pages > 1:
-                        await channel.send(embed=embed, view=view)
-                    else:
+                    embeds = split_embeds(view)
+                    for embed in embeds:
                         await channel.send(embed=embed)
-                        
                 except Exception as e:
                     print(f"⚠️  Could not send weekly summary to channel {channel_id}: {e}")
 
