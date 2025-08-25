@@ -1,7 +1,7 @@
-from bandsintown_api import BandsintownAPI
 from cloud_database import JSONBinDatabase
 import requests
 import urllib.parse
+from typing import Optional
 """
 Discord Bot integration for Music Updater
 Handles Discord notifications and slash commands for artist tracking
@@ -1589,41 +1589,169 @@ async def help_command(interaction: discord.Interaction):
 # Music command group
 class MusicGroup(app_commands.Group):
 
-    @app_commands.command(name="concerts", description="Show upcoming concerts for your tracked artists.")
-    async def concerts(self, interaction: discord.Interaction, artist: str = None):
-        """Show upcoming concerts for a specific artist or all tracked artists."""
-        await interaction.response.defer()
-        db = JSONBinDatabase()
-        artists = await db.load_artists()
-        if artist:
-            # Try to find the artist by name (case-insensitive)
-            tracked = [a for a in artists if a.get("name", "").lower() == artist.lower()]
-            if not tracked:
-                await interaction.followup.send(f"❌ Artist '{artist}' not found in your tracked list.")
+    @app_commands.command(name="concerts", description="Show upcoming concerts for your tracked artists. Optionally filter by artist and state.")
+    async def concerts(self, interaction: discord.Interaction, artist: Optional[str] = None, state: Optional[str] = None):
+        """Show upcoming concerts for a specific artist or all tracked artists, optionally filtered by US state code(s)."""
+        import aiohttp
+        import urllib.parse
+        import traceback
+        TICKETMASTER_API_KEY = getattr(config, "TICKETMASTER_API_KEY", None) or os.environ.get("TICKETMASTER_API_KEY")
+        try:
+            if not TICKETMASTER_API_KEY:
+                await interaction.response.send_message("❌ Ticketmaster API key not configured. Please set TICKETMASTER_API_KEY in your config or environment.", ephemeral=True)
                 return
-        else:
-            tracked = artists
-        if not tracked:
-            await interaction.followup.send("No tracked artists found.")
-            return
-        results = []
-        for a in tracked:
-            name = a.get("name")
-            if not name:
-                continue
-            events = await BandsintownAPI.get_upcoming_events(name)
-            if events:
-                for event in events[:3]:  # Limit to 3 per artist for brevity
-                    venue = event.get("venue", {})
-                    city = venue.get("city", "")
-                    country = venue.get("country", "")
-                    date = event.get("datetime", "")[:10]
-                    url = event.get("url", "")
-                    results.append(f"**{name}**: {date} - {city}, {country} [Tickets]({url})")
-        if results:
-            await interaction.followup.send("\n".join(results))
-        else:
-            await interaction.followup.send("No upcoming concerts found for your tracked artists.")
+            await interaction.response.defer()
+            db = JSONBinDatabase()
+            artists = await db.load_artists()
+            if artist:
+                tracked = [a for a in artists if a.get("name", "").lower() == artist.lower()]
+                if not tracked:
+                    await interaction.followup.send(f"❌ Artist '{artist}' not found in your tracked list.")
+                    return
+            else:
+                tracked = artists
+            if not tracked:
+                await interaction.followup.send("No tracked artists found.")
+                return
+            from collections import defaultdict
+            location_events = defaultdict(list)  # {(city, state, date): [ (event_name, url, [artist names]) ]}
+            seen_event_ids = set()
+            base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
+            async with aiohttp.ClientSession() as session:
+                for a in tracked:
+                    name = a.get("name")
+                    if not name:
+                        continue
+                    params = {
+                        "apikey": TICKETMASTER_API_KEY,
+                        "keyword": name,
+                        "countryCode": "US",
+                        "size": 5
+                    }
+                    if "stateCode" not in params:
+                        params["stateCode"] = "NH,MA,RI,CT"
+                    url = base_url + "?" + urllib.parse.urlencode(params)
+                    try:
+                        async with session.get(url) as resp:
+                            data = await resp.json()
+                            events = data.get("_embedded", {}).get("events", [])
+                            if events:
+                                for event in events:
+                                    event_id = event.get("id")
+                                    if event_id in seen_event_ids:
+                                        continue
+                                    seen_event_ids.add(event_id)
+                                    event_name = event.get("name", "Unknown Event")
+                                    # Filter out events with 'Premium' in the name
+                                    if "premium" in event_name.lower():
+                                        continue
+                                    dates = event.get("dates", {}).get("start", {})
+                                    date = dates.get("localDate", "?")
+                                    venue = event.get("_embedded", {}).get("venues", [{}])[0]
+                                    city = venue.get("city", {}).get("name", "")
+                                    state = venue.get("state", {}).get("name", "")
+                                    url = event.get("url", "")
+                                    # Try to get all artists from the event's attractions if available
+                                    artists_list = []
+                                    if "_embedded" in event and "attractions" in event["_embedded"]:
+                                        for attr in event["_embedded"]["attractions"]:
+                                            if attr.get("name"):
+                                                artists_list.append(attr["name"])
+                                    # Only include event if tracked artist is in attractions (case-insensitive)
+                                    if artists_list:
+                                        # Require exact match (case-insensitive) between tracked artist and attraction
+                                        if not any(name.strip().lower() == a.strip().lower() for a in artists_list):
+                                            continue
+                                        # Show all artists for the event if matched
+                                        pass
+                                    else:
+                                        # If no attractions, fallback to keyword match (legacy behavior)
+                                        if name.strip().lower() not in event_name.lower():
+                                            continue
+                                        artists_list = [name]
+                                    stubhub_url = f"https://www.stubhub.com/find/s/?q={urllib.parse.quote_plus(event_name)}"
+                                    key = (city, state, date)
+                                    location_events[key].append((event_name, url, stubhub_url, artists_list))
+                            else:
+                                pass
+                    except Exception as e:
+                        pass
+            try:
+                if location_events:
+                    # Build grouped message per location, use Discord embeds, and paginate
+                    import math
+                    embeds = []
+                    events_per_page = 4
+                    locations = sorted(location_events.items(), key=lambda x: (x[0][2], x[0][1], x[0][0]))
+                    for i in range(0, len(locations), events_per_page):
+                        embed = discord.Embed(title="Upcoming Concerts in NH, MA, RI", color=0x1DB954)
+                        for (city, state, date), events in locations[i:i+events_per_page]:
+                            loc_title = f"{city}, {state} — {date}"
+                            desc_lines = []
+                            for event_name, url, stubhub_url, artists_list in events:
+                                artist_str = ", ".join(artists_list)
+                                desc_lines.append(f"**{event_name}**\nArtists: {artist_str}")
+                            embed.add_field(name=loc_title, value="\n\n".join(desc_lines), inline=False)
+                        embed.set_footer(text=f"Page {math.ceil(i/events_per_page)+1}/{math.ceil(len(locations)/events_per_page)}")
+                        embeds.append(embed)
+
+                    class ConcertsEmbedPaginator(discord.ui.View):
+                        def __init__(self, embeds):
+                            super().__init__(timeout=180)
+                            self.embeds = embeds
+                            self.page = 0
+                            self.message = None
+                            # Add persistent buttons
+                            self.prev_button = discord.ui.Button(label="Prev", style=discord.ButtonStyle.secondary, custom_id="concerts_prev")
+                            self.next_button = discord.ui.Button(label="Next", style=discord.ButtonStyle.secondary, custom_id="concerts_next")
+                            self.page_label = discord.ui.Button(label=f"Page {self.page+1}/{len(self.embeds)}", style=discord.ButtonStyle.gray, disabled=True)
+                            self.prev_button.callback = self.prev
+                            self.next_button.callback = self.next
+                            self.update_buttons()
+
+                        def update_buttons(self):
+                            self.clear_items()
+                            self.prev_button.disabled = self.page == 0
+                            self.next_button.disabled = self.page == len(self.embeds)-1
+                            self.page_label.label = f"Page {self.page+1}/{len(self.embeds)}"
+                            self.add_item(self.prev_button)
+                            self.add_item(self.page_label)
+                            self.add_item(self.next_button)
+
+                        async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                            orig_user = None
+                            msg = getattr(interaction, "message", None)
+                            if msg is not None:
+                                msg_interaction = getattr(msg, "interaction", None)
+                                if msg_interaction is not None:
+                                    orig_user = getattr(msg_interaction, "user", None)
+                            if orig_user:
+                                return interaction.user == orig_user
+                            return True
+
+                        async def prev(self, interaction: discord.Interaction):
+                            if self.page > 0:
+                                self.page -= 1
+                                self.update_buttons()
+                                await interaction.response.edit_message(embed=self.embeds[self.page], view=self)
+
+                        async def next(self, interaction: discord.Interaction):
+                            if self.page < len(self.embeds) - 1:
+                                self.page += 1
+                                self.update_buttons()
+                                await interaction.response.edit_message(embed=self.embeds[self.page], view=self)
+
+                    view = ConcertsEmbedPaginator(embeds)
+                    await interaction.followup.send(embed=embeds[0], view=view)
+                else:
+                    await interaction.followup.send("No upcoming concerts found in NH, MA, or RI for your tracked artists.")
+            except Exception as e:
+                await interaction.followup.send(f"❌ Error sending results to Discord: {e}")
+        except Exception as e:
+            try:
+                await interaction.followup.send(f"❌ Fatal error in /concerts: {e}")
+            except:
+                pass
     """Music tracking commands"""
     
     def __init__(self):
