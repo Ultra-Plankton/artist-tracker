@@ -1,3 +1,5 @@
+from bandsintown_api import BandsintownAPI
+from cloud_database import JSONBinDatabase
 import requests
 import urllib.parse
 """
@@ -1586,6 +1588,42 @@ async def help_command(interaction: discord.Interaction):
 
 # Music command group
 class MusicGroup(app_commands.Group):
+
+    @app_commands.command(name="concerts", description="Show upcoming concerts for your tracked artists.")
+    async def concerts(self, interaction: discord.Interaction, artist: str = None):
+        """Show upcoming concerts for a specific artist or all tracked artists."""
+        await interaction.response.defer()
+        db = JSONBinDatabase()
+        artists = await db.load_artists()
+        if artist:
+            # Try to find the artist by name (case-insensitive)
+            tracked = [a for a in artists if a.get("name", "").lower() == artist.lower()]
+            if not tracked:
+                await interaction.followup.send(f"❌ Artist '{artist}' not found in your tracked list.")
+                return
+        else:
+            tracked = artists
+        if not tracked:
+            await interaction.followup.send("No tracked artists found.")
+            return
+        results = []
+        for a in tracked:
+            name = a.get("name")
+            if not name:
+                continue
+            events = await BandsintownAPI.get_upcoming_events(name)
+            if events:
+                for event in events[:3]:  # Limit to 3 per artist for brevity
+                    venue = event.get("venue", {})
+                    city = venue.get("city", "")
+                    country = venue.get("country", "")
+                    date = event.get("datetime", "")[:10]
+                    url = event.get("url", "")
+                    results.append(f"**{name}**: {date} - {city}, {country} [Tickets]({url})")
+        if results:
+            await interaction.followup.send("\n".join(results))
+        else:
+            await interaction.followup.send("No upcoming concerts found for your tracked artists.")
     """Music tracking commands"""
     
     def __init__(self):
