@@ -24,7 +24,12 @@ class SpotifyAPI:
                 client_id=config.SPOTIFY_CLIENT_ID,
                 client_secret=config.SPOTIFY_CLIENT_SECRET
             )
-            self.sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+            # Set explicit request timeout and retry behaviour so stalled HTTP calls do not hang the bot
+            self.sp = spotipy.Spotify(
+                client_credentials_manager=client_credentials_manager,
+                requests_timeout=10,
+                retries=5,
+            )
             print("✅ Spotify API initialized successfully!")
             return True
         except Exception as e:

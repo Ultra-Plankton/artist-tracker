@@ -769,15 +769,29 @@ class MusicBot(commands.Bot):
         self.artists = []
         self.setup_tasks()
     
-    async def get_latest_by_type_with_retries(self, artist_id: str, retries: int = 3, backoff: float = 1.0):
+    async def get_latest_by_type_with_retries(
+        self,
+        artist_id: str,
+        retries: int = 3,
+        backoff: float = 1.0,
+        timeout: float = 15.0,
+    ):
         """Call SpotifyAPI.get_latest_by_type in a thread executor with retries on transient errors."""
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         last_exc = None
         for attempt in range(1, retries + 1):
             try:
-                # Run the possibly-blocking spotify call in the default executor
-                result = await loop.run_in_executor(None, self.spotify.get_latest_by_type, artist_id)
+                # Run the possibly-blocking spotify call in the default executor with an overall timeout
+                result = await asyncio.wait_for(
+                    loop.run_in_executor(None, self.spotify.get_latest_by_type, artist_id),
+                    timeout=timeout,
+                )
                 return result
+            except asyncio.TimeoutError as e:
+                last_exc = e
+                print(
+                    f"⏱️ Spotify request for artist ID '{artist_id}' timed out (attempt {attempt}/{retries}, {timeout:.0f}s limit)"
+                )
             except (requests.exceptions.RequestException, ConnectionResetError, OSError) as e:
                 last_exc = e
                 print(f"❌ Error getting albums for artist ID '{artist_id}' (attempt {attempt}/{retries}): {e}")
@@ -787,6 +801,13 @@ class MusicBot(commands.Bot):
                     await asyncio.sleep(sleep_time)
                 else:
                     print(f"❌ Exhausted retries for artist ID '{artist_id}'")
+                continue
+            if attempt < retries:
+                sleep_time = backoff * (2 ** (attempt - 1))
+                print(f"ℹ️ Retrying in {sleep_time:.1f}s...")
+                await asyncio.sleep(sleep_time)
+            else:
+                print(f"❌ Exhausted retries for artist ID '{artist_id}'")
         # Re-raise the last exception so caller can handle/log it
         if last_exc:
             raise last_exc
