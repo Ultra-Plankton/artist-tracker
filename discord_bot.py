@@ -18,6 +18,7 @@ import sys
 from datetime import datetime, time, timedelta
 import pytz  # Import the pytz library for timezone handling
 from aiohttp import web
+import aiohttp
 import config
 from spotify_api import SpotifyAPI
 from data_manager import DataManager
@@ -57,7 +58,7 @@ class YouTubeAPI:
         else:
             print(f"📺 YouTube API initialized with key: {api_key[:5]}...{api_key[-5:] if len(api_key) > 10 else ''}")
             
-    def search_playlists(self, query, max_results=3):
+    async def search_playlists(self, session, query, max_results=3):
         """
         Search for playlists on YouTube, focusing on YouTube Music playlists
         
@@ -88,14 +89,14 @@ class YouTubeAPI:
         print(f"🎵 Searching for YouTube Music playlists: '{search_query}'")
         
         try:
-            response = requests.get(url, params=params, timeout=10)
-            
-            if response.status_code != 200:
-                error_msg = f"YouTube API HTTP error: {response.status_code} - {response.text}"
-                print(f"❌ {error_msg}")
-                return {"error": {"message": error_msg}, "items": []}
+            async with session.get(url, params=params, timeout=10) as response:
+                if response.status != 200:
+                    error_text = await response.text()
+                    error_msg = f"YouTube API HTTP error: {response.status} - {error_text}"
+                    print(f"❌ {error_msg}")
+                    return {"error": {"message": error_msg}, "items": []}
                 
-            result = response.json()
+                result = await response.json()
             
             if 'error' in result:
                 error_message = result['error'].get('message', 'Unknown error')
@@ -129,7 +130,7 @@ class YouTubeAPI:
             print(f"❌ Error searching YouTube playlists: {e}")
             return {"error": {"message": str(e)}, "items": []}
 
-    def search_videos(self, query, max_results=5, prefer_music=True):
+    async def search_videos(self, session, query, max_results=5, prefer_music=True):
         """
         Search for videos on YouTube
         
@@ -162,37 +163,37 @@ class YouTubeAPI:
         print(f"🔍 Searching YouTube for: '{search_query}'")
         print(f"🔑 Using API key: {self.api_key[:5]}...{self.api_key[-5:] if len(self.api_key) > 10 else ''}")
         try:
-            response = requests.get(url, params=params, timeout=10)
-            
-            # Check for HTTP errors
-            if response.status_code != 200:
-                error_msg = f"YouTube API HTTP error: {response.status_code} - {response.text}"
-                print(f"❌ {error_msg}")
-                
-                # Check for specific errors in the response
-                if "quota" in response.text.lower():
-                    return {
-                        "error": {
-                            "code": 403,
-                            "message": "YouTube API quota exceeded. Try again tomorrow."
-                        }
-                    }
-                elif "expired" in response.text.lower():
-                    return {
-                        "error": {
-                            "code": 400,
-                            "message": "YouTube API key has expired. Please renew the API key."
-                        }
-                    }
+            async with session.get(url, params=params, timeout=10) as response:
+                # Check for HTTP errors
+                if response.status != 200:
+                    error_text = await response.text()
+                    error_msg = f"YouTube API HTTP error: {response.status} - {error_text}"
+                    print(f"❌ {error_msg}")
                     
-                return {"error": {"message": error_msg}, "items": []}
+                    # Check for specific errors in the response
+                    if "quota" in error_text.lower():
+                        return {
+                            "error": {
+                                "code": 403,
+                                "message": "YouTube API quota exceeded. Try again tomorrow."
+                            }
+                        }
+                    elif "expired" in error_text.lower():
+                        return {
+                            "error": {
+                                "code": 400,
+                                "message": "YouTube API key has expired. Please renew the API key."
+                            }
+                        }
+                        
+                    return {"error": {"message": error_msg}, "items": []}
                 
-            result = response.json()
+                result = await response.json()
             
             # Check for API errors
             if 'error' in result:
                 error_message = result['error'].get('message', 'Unknown error')
-                error_code = result['error'].get('code', 'Unknown code')
+                error_code = result['error'].get('code', 'Unknown')
                 print(f"❌ YouTube API error: {error_code} - {error_message}")
                 
                 # Detect specific error types
@@ -215,10 +216,10 @@ class YouTubeAPI:
                 print(f"   URL: https://www.youtube.com/watch?v={video_id}")
             
             return result
-        except requests.exceptions.Timeout:
+        except asyncio.TimeoutError:
             print(f"⏱️ YouTube API request timed out for '{query}'")
             return {"error": {"message": "Request timed out"}, "items": []}
-        except requests.exceptions.RequestException as e:
+        except aiohttp.ClientError as e:
             print(f"❌ YouTube API request failed: {e}")
             return {"error": {"message": f"Request failed: {str(e)}"}, "items": []}
         except Exception as e:
@@ -233,7 +234,7 @@ def get_youtube_search_url(query):
     return f"https://www.youtube.com/results?search_query={encoded_query}"
 
 
-def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True):
+async def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True):
     """
     Get a YouTube Music Topic URL for an artist or release.
     Tries YouTube API first, falls back to stored links if API fails.
@@ -264,41 +265,42 @@ def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True)
             print(f"⚠️ YouTube API key invalid or missing, length: {len(youtube.api_key) if youtube.api_key else 0}")
             raise ValueError("Invalid YouTube API key")
         
-        # First try searching for playlists if it's an album or we have a release title
-        if try_music_link and release_title:
-            print(f"🎵 Looking for YouTube Music playlist for album/release...")
-            
-            # For albums, try to find a playlist
-            playlist_query = f"{artist} {release_title} album"
-            playlist_results = youtube.search_playlists(playlist_query, max_results=3)
-            
-            if not 'error' in playlist_results and playlist_results.get('items') and len(playlist_results['items']) > 0:
-                # Look for official playlists
-                best_playlist = None
+        async with aiohttp.ClientSession() as session:
+            # First try searching for playlists if it's an album or we have a release title
+            if try_music_link and release_title:
+                print(f"🎵 Looking for YouTube Music playlist for album/release...")
                 
-                for item in playlist_results['items']:
-                    playlist_id = item['id'].get('playlistId')
-                    title = item['snippet']['title']
-                    channel = item['snippet']['channelTitle']
+                # For albums, try to find a playlist
+                playlist_query = f"{artist} {release_title} album"
+                playlist_results = await youtube.search_playlists(session, playlist_query, max_results=3)
+                
+                if not 'error' in playlist_results and playlist_results.get('items') and len(playlist_results['items']) > 0:
+                    # Look for official playlists
+                    best_playlist = None
                     
-                    # Check if it's likely an official playlist
-                    is_official = (" - Topic" in channel or 
-                                  "VEVO" in channel or 
-                                  "YouTube Music" in channel or
-                                  "Official" in channel or
-                                  (artist.lower() in channel.lower() and "topic" in channel.lower()))
-                    
-                    has_keywords = (artist.lower() in title.lower() and 
-                                   any(word.lower() in title.lower() for word in release_title.lower().split()))
-                    
-                    # For official channels, prioritize this result
-                    if is_official and has_keywords:
-                        best_playlist = item
-                        break
-                    # For non-official channels, check if title has both artist and release name
-                    elif has_keywords and not best_playlist:
-                        best_playlist = item
-                        # Keep searching for better matches
+                    for item in playlist_results['items']:
+                        playlist_id = item['id'].get('playlistId')
+                        title = item['snippet']['title']
+                        channel = item['snippet']['channelTitle']
+                        
+                        # Check if it's likely an official playlist
+                        is_official = (" - Topic" in channel or 
+                                      "VEVO" in channel or 
+                                      "YouTube Music" in channel or
+                                      "Official" in channel or
+                                      (artist.lower() in channel.lower() and "topic" in channel.lower()))
+                        
+                        has_keywords = (artist.lower() in title.lower() and 
+                                       any(word.lower() in title.lower() for word in release_title.lower().split()))
+                        
+                        # For official channels, prioritize this result
+                        if is_official and has_keywords:
+                            best_playlist = item
+                            break
+                        # For non-official channels, check if title has both artist and release name
+                        elif has_keywords and not best_playlist:
+                            best_playlist = item
+                            # Keep searching for better matches
                 
                 if best_playlist:
                     playlist_id = best_playlist['id']['playlistId']
@@ -332,33 +334,34 @@ def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True)
             # Try adding "topic" to find official artist channels
             music_query = f"{search_query} music.youtube"
             
-            music_result = youtube.search_videos(music_query, max_results=3, prefer_music=True)
-            
-            # Check for music-specific results
-            if not 'error' in music_result and music_result.get('items') and len(music_result['items']) > 0:
-                # Look through results for YouTube Music links
-                for item in music_result['items']:
-                    video_id = item['id']['videoId']
-                    title = item['snippet']['title']
-                    channel = item['snippet']['channelTitle']
-                    
-                    # Look for official topic channels
-                    if " - Topic" in channel or "VEVO" in channel or "Official" in channel or "official" in title:
-                        youtube_url = f"https://www.youtube.com/watch?v={video_id}"
-                        # Also offer YouTube Music URL
-                        youtube_music_url = f"https://music.youtube.com/watch?v={video_id}"
+            async with aiohttp.ClientSession() as session:
+                music_result = await youtube.search_videos(session, music_query, max_results=3, prefer_music=True)
+                
+                # Check for music-specific results
+                if not 'error' in music_result and music_result.get('items') and len(music_result['items']) > 0:
+                    # Look through results for YouTube Music links
+                    for item in music_result['items']:
+                        video_id = item['id']['videoId']
+                        title = item['snippet']['title']
+                        channel = item['snippet']['channelTitle']
                         
-                        print(f"✅ SUCCESS: Found official YouTube Music URL: {youtube_music_url}")
-                        print(f"   Title: {title}")
-                        print(f"   Channel: {channel}")
-                        
-                        # Return YouTube Music URL for official content
-                        return youtube_music_url
+                        # Look for official topic channels
+                        if " - Topic" in channel or "VEVO" in channel or "Official" in channel or "official" in title:
+                            youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+                            # Also offer YouTube Music URL
+                            youtube_music_url = f"https://music.youtube.com/watch?v={video_id}"
+                            
+                            print(f"✅ SUCCESS: Found official YouTube Music URL: {youtube_music_url}")
+                            print(f"   Title: {title}")
+                            print(f"   Channel: {channel}")
+                            
+                            # Return YouTube Music URL for official content
+                            return youtube_music_url
                 
                 print(f"ℹ️ Found results but none were from official artist channels")
         
         # If no YouTube Music-specific results, do a regular search
-        result = youtube.search_videos(search_query, max_results=3, prefer_music=True)
+        result = await youtube.search_videos(session, search_query, max_results=3, prefer_music=True)
         
         # Check for API errors
         if 'error' in result:
@@ -372,7 +375,7 @@ def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True)
             
             # Look for the best match among results
             for item in result['items']:
-                video_id = item['id']['videoId']
+                video_id = item['id'].get('videoId')
                 title = item['snippet']['title']
                 channel = item['snippet']['channelTitle']
                 
@@ -461,7 +464,7 @@ def get_youtube_music_topic_url(artist, release_title=None, try_music_link=True)
 
 # Pagination Views
 class ReleasePaginationView(discord.ui.View):
-    def get_apple_music_link(self, artist, release_name, is_album=True):
+    async def get_apple_music_link(self, session, artist, release_name, is_album=True):
         """Fetch Apple Music link for an album or single using iTunes Search API"""
         base_url = "https://itunes.apple.com/search"
         query = f"{artist} {release_name}"
@@ -471,20 +474,21 @@ class ReleasePaginationView(discord.ui.View):
             "limit": 1
         }
         try:
-            response = requests.get(base_url, params=params, timeout=5)
-            if response.status_code == 200:
-                results = response.json().get("results", [])
-                if results:
-                    # For albums, use collectionViewUrl; for singles, use trackViewUrl
-                    if is_album and "collectionViewUrl" in results[0]:
-                        return results[0]["collectionViewUrl"]
-                    elif not is_album and "trackViewUrl" in results[0]:
-                        return results[0]["trackViewUrl"]
+            async with session.get(base_url, params=params, timeout=5) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    results = data.get("results", [])
+                    if results:
+                        # For albums, use collectionViewUrl; for singles, use trackViewUrl
+                        if is_album and "collectionViewUrl" in results[0]:
+                            return results[0]["collectionViewUrl"]
+                        elif not is_album and "trackViewUrl" in results[0]:
+                            return results[0]["trackViewUrl"]
         except Exception as e:
             print(f"Apple Music lookup failed: {e}")
         return None
 
-    def get_amazon_music_link(self, artist, release_name, is_album=True):
+    async def get_amazon_music_link(self, session, artist, release_name, is_album=True):
         """Fetch Amazon Music link for an album or single using Amazon search page scraping"""
         import urllib.parse
         import re
@@ -499,22 +503,23 @@ class ReleasePaginationView(discord.ui.View):
         else:
             search_url = f"https://music.amazon.com/search/songs/{encoded_query}"
         try:
-            resp = requests.get(search_url, headers=headers, timeout=5)
-            if resp.status_code == 200:
-                # Try to find the first album/song link in the HTML
-                # Look for /albums/ or /albums/B... or /songs/B... links
-                match = re.search(r'"(/albums/[^"]+)"', resp.text)
-                if not match and not is_album:
-                    match = re.search(r'"(/songs/[^"]+)"', resp.text)
-                if match:
-                    found_link = f"https://music.amazon.com{match.group(1)}"
-                    print(f"[AmazonMusic] Found link for '{artist} - {release_name}': {found_link}")
-                    return found_link
-                # If not found, just return the search page
-                print(f"[AmazonMusic] No direct album/song link found for '{artist} - {release_name}', returning search page: {search_url}")
-                return search_url
-            else:
-                print(f"[AmazonMusic] HTTP error {resp.status_code} for '{artist} - {release_name}'")
+            async with session.get(search_url, headers=headers, timeout=5) as resp:
+                if resp.status == 200:
+                    # Try to find the first album/song link in the HTML
+                    # Look for /albums/ or /albums/B... or /songs/B... links
+                    text = await resp.text()
+                    match = re.search(r'"(/albums/[^"]+)"', text)
+                    if not match and not is_album:
+                        match = re.search(r'"(/songs/[^"]+)"', text)
+                    if match:
+                        found_link = f"https://music.amazon.com{match.group(1)}"
+                        print(f"[AmazonMusic] Found link for '{artist} - {release_name}': {found_link}")
+                        return found_link
+                    # If not found, just return the search page
+                    print(f"[AmazonMusic] No direct album/song link found for '{artist} - {release_name}', returning search page: {search_url}")
+                    return search_url
+                else:
+                    print(f"[AmazonMusic] HTTP error {resp.status} for '{artist} - {release_name}'")
         except Exception as e:
             print(f"Amazon Music lookup failed: {e}")
         print(f"[AmazonMusic] No link found for '{artist} - {release_name}'")
@@ -549,7 +554,7 @@ class ReleasePaginationView(discord.ui.View):
         self.previous_button.disabled = self.current_page == 0
         self.next_button.disabled = self.current_page >= self.total_pages - 1
     
-    def create_embed(self):
+    async def create_embed(self):
         """Create embed for current page"""
         all_releases = self.albums + self.singles
         start_idx = self.current_page * self.page_size
@@ -568,19 +573,19 @@ class ReleasePaginationView(discord.ui.View):
         page_singles = [r for r in page_releases if r['type'] == 'single']
         
         # Use our global function for YouTube links (will be more consistent)
-        def get_release_youtube_link(artist, track_name):
+        async def get_release_youtube_link(artist, track_name):
             """Get YouTube link with detailed logging for releases page"""
             print(f"🎵 Getting YouTube link for release page: {artist} - {track_name}")
-            return get_youtube_music_topic_url(artist, track_name)
+            return await get_youtube_music_topic_url(artist, track_name)
             
         # Helper function to create release line with smart truncation
-        def create_release_line(release_info, max_length=80):
+        async def create_release_line(session, release_info, max_length=80):
             artist = release_info['artist']
             release = release_info['release']
             spotify_link = release.get('external_urls', {}).get('spotify', '')
-            youtube_music_link = get_release_youtube_link(artist, release['name'])
+            youtube_music_link = await get_release_youtube_link(artist, release['name'])
             is_album = release_info['type'] == 'album'
-            apple_music_link = self.get_apple_music_link(artist, release['name'], is_album=is_album)
+            apple_music_link = await self.get_apple_music_link(session, artist, release['name'], is_album=is_album)
             # Smart truncation based on available space
             artist_name = artist[:25] + "..." if len(artist) > 25 else artist
             # Calculate remaining space for release name
@@ -595,29 +600,6 @@ class ReleasePaginationView(discord.ui.View):
                 links.append(f"[YouTube]({youtube_music_link})")
             if apple_music_link:
                 links.append(f"[Apple Music]({apple_music_link})")
-            if links:
-                links_str = " | ".join(links)
-                return f"• **{artist_name}** - {release_name} ({release['release_date']}) {links_str}"
-            else:
-                return f"• **{artist_name}** - {release_name} ({release['release_date']})"
-
-            # Smart truncation based on available space
-            artist_name = artist[:25] + "..." if len(artist) > 25 else artist
-
-            # Calculate remaining space for release name
-            base_length = len(f"• **{artist_name}** - [] ({release['release_date']})")
-            remaining_space = max_length - base_length
-            release_name = release['name'][:max(10, remaining_space-5)] + "..." if len(release['name']) > remaining_space else release['name']
-
-            # Create links list
-            links = []
-            if spotify_link:
-                links.append(f"[Spotify]({spotify_link})")
-            if youtube_music_link:
-                links.append(f"[YouTube]({youtube_music_link})")
-            if apple_music_link:
-                links.append(f"[Apple Music]({apple_music_link})")
-
             if links:
                 links_str = " | ".join(links)
                 return f"• **{artist_name}** - {release_name} ({release['release_date']}) {links_str}"
@@ -630,14 +612,15 @@ class ReleasePaginationView(discord.ui.View):
             album_chunks = []
             chunk = []
             current_length = 0
-            for album in page_albums:
-                line = create_release_line(album)
-                if current_length + len(line) + 1 > max_field_length:
-                    album_chunks.append(chunk)
-                    chunk = []
-                    current_length = 0
-                chunk.append(line)
-                current_length += len(line) + 1
+            async with aiohttp.ClientSession() as session:
+                for album in page_albums:
+                    line = await create_release_line(session, album)
+                    if current_length + len(line) + 1 > max_field_length:
+                        album_chunks.append(chunk)
+                        chunk = []
+                        current_length = 0
+                    chunk.append(line)
+                    current_length += len(line) + 1
             if chunk:
                 album_chunks.append(chunk)
             for idx, chunk in enumerate(album_chunks):
@@ -653,14 +636,15 @@ class ReleasePaginationView(discord.ui.View):
             single_chunks = []
             chunk = []
             current_length = 0
-            for single in page_singles:
-                line = create_release_line(single)
-                if current_length + len(line) + 1 > max_field_length:
-                    single_chunks.append(chunk)
-                    chunk = []
-                    current_length = 0
-                chunk.append(line)
-                current_length += len(line) + 1
+            async with aiohttp.ClientSession() as session:
+                for single in page_singles:
+                    line = await create_release_line(session, single)
+                    if current_length + len(line) + 1 > max_field_length:
+                        single_chunks.append(chunk)
+                        chunk = []
+                        current_length = 0
+                    chunk.append(line)
+                    current_length += len(line) + 1
             if chunk:
                 single_chunks.append(chunk)
             for idx, chunk in enumerate(single_chunks):
@@ -685,7 +669,7 @@ class ReleasePaginationView(discord.ui.View):
         if self.current_page > 0:
             self.current_page -= 1
             self.update_buttons()
-            await interaction.response.edit_message(embed=self.create_embed(), view=self)
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
         else:
             await interaction.response.defer()
     
@@ -694,7 +678,7 @@ class ReleasePaginationView(discord.ui.View):
         if self.current_page < self.total_pages - 1:
             self.current_page += 1
             self.update_buttons()
-            await interaction.response.edit_message(embed=self.create_embed(), view=self)
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
         else:
             await interaction.response.defer()
 
@@ -717,7 +701,7 @@ class ArtistPaginationView(discord.ui.View):
         self.previous_button.disabled = self.current_page == 0
         self.next_button.disabled = self.current_page >= self.total_pages - 1
     
-    def create_embed(self):
+    async def create_embed(self):
         """Create embed for current page"""
         start_idx = self.current_page * 10
         end_idx = start_idx + 10
@@ -749,7 +733,7 @@ class ArtistPaginationView(discord.ui.View):
                 inline=True
             )
         
-        embed.set_footer(text=f"Use /music add to add more artists • Page {self.current_page + 1}/{self.total_pages}")
+        embed.set_footer(text=f"Use `/music add` to add more artists • Page {self.current_page + 1}/{self.total_pages}")
         return embed
     
     @discord.ui.button(label='◀️ Previous', style=discord.ButtonStyle.gray)
@@ -757,7 +741,7 @@ class ArtistPaginationView(discord.ui.View):
         if self.current_page > 0:
             self.current_page -= 1
             self.update_buttons()
-            await interaction.response.edit_message(embed=self.create_embed(), view=self)
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
         else:
             await interaction.response.defer()
     
@@ -766,7 +750,7 @@ class ArtistPaginationView(discord.ui.View):
         if self.current_page < self.total_pages - 1:
             self.current_page += 1
             self.update_buttons()
-            await interaction.response.edit_message(embed=self.create_embed(), view=self)
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
         else:
             await interaction.response.defer()
 
@@ -784,6 +768,29 @@ class MusicBot(commands.Bot):
         self.notification_channels = []  # Support multiple notification channels
         self.artists = []
         self.setup_tasks()
+    
+    async def get_latest_by_type_with_retries(self, artist_id: str, retries: int = 3, backoff: float = 1.0):
+        """Call SpotifyAPI.get_latest_by_type in a thread executor with retries on transient errors."""
+        loop = asyncio.get_event_loop()
+        last_exc = None
+        for attempt in range(1, retries + 1):
+            try:
+                # Run the possibly-blocking spotify call in the default executor
+                result = await loop.run_in_executor(None, self.spotify.get_latest_by_type, artist_id)
+                return result
+            except (requests.exceptions.RequestException, ConnectionResetError, OSError) as e:
+                last_exc = e
+                print(f"❌ Error getting albums for artist ID '{artist_id}' (attempt {attempt}/{retries}): {e}")
+                if attempt < retries:
+                    sleep_time = backoff * (2 ** (attempt - 1))
+                    print(f"ℹ️ Retrying in {sleep_time:.1f}s...")
+                    await asyncio.sleep(sleep_time)
+                else:
+                    print(f"❌ Exhausted retries for artist ID '{artist_id}'")
+        # Re-raise the last exception so caller can handle/log it
+        if last_exc:
+            raise last_exc
+        return None
 
     def setup_tasks(self):
         """Set up scheduled tasks for checking releases"""
@@ -921,10 +928,16 @@ class MusicBot(commands.Bot):
                 continue  # Skip offline artists
             
             try:
-                # Get latest releases by type
-                releases_by_type = self.spotify.get_latest_by_type(artist['spotify_data']['id'])
-                latest_album = releases_by_type['latest_album']
-                latest_single = releases_by_type['latest_single']
+                # Get latest releases by type (use retry wrapper to handle transient network errors)
+                releases_by_type = await self.get_latest_by_type_with_retries(artist['spotify_data']['id'])
+                
+                # FIX: Check if the API call was successful before proceeding
+                if not releases_by_type:
+                    print(f"⚠️ Could not fetch releases for {artist['name']} after retries. Skipping.")
+                    continue
+
+                latest_album = releases_by_type.get('latest_album')
+                latest_single = releases_by_type.get('latest_single')
                 
                 # PRODUCTION MODE: Check for actual new releases
                 # Check for new album
@@ -983,7 +996,7 @@ class MusicBot(commands.Bot):
                 try:
                     # Create pagination view
                     view = ReleasePaginationView(albums, singles)
-                    embed = view.create_embed()
+                    embed = await view.create_embed()
                     
                     # Only show pagination buttons if there are multiple pages
                     if view.total_pages > 1:
@@ -1044,27 +1057,33 @@ class MusicBot(commands.Bot):
             
             try:
                 # Get all albums and singles for this artist
-                releases_by_type = self.spotify.get_latest_by_type(artist['spotify_data']['id'])
+                releases_by_type = await self.get_latest_by_type_with_retries(artist['spotify_data']['id'])
                 
+                # FIX: Check if the API call was successful before proceeding
+                if not releases_by_type:
+                    continue
+
                 # Check albums released this week
-                if releases_by_type['latest_album']:
-                    album_date = releases_by_type['latest_album']['release_date']
+                latest_week_album = releases_by_type.get('latest_album')
+                if latest_week_album:
+                    album_date = latest_week_album['release_date']
                     if week_start_str <= album_date <= week_end_str:
                         weekly_releases.append({
                             'artist': artist['name'],
                             'type': 'album',
-                            'release': releases_by_type['latest_album'],
+                            'release': latest_week_album,
                             'artist_data': artist
                         })
                 
                 # Check singles released this week
-                if releases_by_type['latest_single']:
-                    single_date = releases_by_type['latest_single']['release_date']
+                latest_week_single = releases_by_type.get('latest_single')
+                if latest_week_single:
+                    single_date = latest_week_single['release_date']
                     if week_start_str <= single_date <= week_end_str:
                         weekly_releases.append({
                             'artist': artist['name'],
                             'type': 'single',
-                            'release': releases_by_type['latest_single'],
+                            'release': latest_week_single,
                             'artist_data': artist
                         })
                         
@@ -1086,8 +1105,8 @@ class MusicBot(commands.Bot):
         singles = [r for r in weekly_releases if r['type'] == 'single']
 
         class WeeklySummaryView(ReleasePaginationView):
-            def create_embed(self):
-                embed = super().create_embed()
+            async def create_embed(self):
+                embed = await super().create_embed()
                 week_start_formatted = week_start.strftime("%B %d")
                 week_end_formatted = week_end.strftime("%B %d, %Y")
                 embed.title = f"🗓️ Weekly Release Summary"
@@ -1096,11 +1115,11 @@ class MusicBot(commands.Bot):
                 embed.set_footer(text="Music Updater Bot • Weekly Summary")
                 return embed
 
-        def split_embeds(view):
+        async def split_embeds(view):
             embeds = []
             for page in range(view.total_pages):
                 view.current_page = page
-                embed = view.create_embed()
+                embed = await view.create_embed()
                 # Split fields into smaller chunks if any field is too long
                 new_fields = []
                 for field in embed.fields:
@@ -1129,13 +1148,13 @@ class MusicBot(commands.Bot):
                 temp_len = 0
                 for nf in new_fields:
                     if temp_embed is None:
-                        temp_embed = view.create_embed()
+                        temp_embed = await view.create_embed()
                         temp_embed.clear_fields()
                         temp_len = len(temp_embed.description or '') + len(temp_embed.title or '')
                     field_len = len(nf['name']) + len(nf['value'])
                     if temp_len + field_len > 5900 or len(temp_embed.fields) >= 25:
                         embeds.append(temp_embed)
-                        temp_embed = view.create_embed()
+                        temp_embed = await view.create_embed()
                         temp_embed.clear_fields()
                         temp_len = len(temp_embed.description or '') + len(temp_embed.title or '')
                     temp_embed.add_field(name=nf['name'], value=nf['value'], inline=nf['inline'])
@@ -1149,7 +1168,7 @@ class MusicBot(commands.Bot):
             if isinstance(channel, (discord.TextChannel, discord.Thread)):
                 try:
                     view = WeeklySummaryView(albums, singles)
-                    embeds = split_embeds(view)
+                    embeds = await split_embeds(view)
                     for embed in embeds:
                         await channel.send(embed=embed)
                 except Exception as e:
@@ -1289,7 +1308,8 @@ async def add_artist_command(interaction: discord.Interaction, artist: str):
         return
     await interaction.response.defer()
     try:
-        spotify_data = bot.spotify.search_artist(artist, interactive=False)
+        loop = asyncio.get_event_loop()
+        spotify_data = await loop.run_in_executor(None, bot.spotify.search_artist, artist, False)
         if not spotify_data:
             await interaction.followup.send(f"❌ Could not find **{artist}** on Spotify.")
             return
@@ -1303,9 +1323,11 @@ async def add_artist_command(interaction: discord.Interaction, artist: str):
             'latest_album': None,
             'latest_single': None
         }
-        releases_by_type = bot.spotify.get_latest_by_type(spotify_data['id'])
-        artist_data['latest_album'] = releases_by_type['latest_album']
-        artist_data['latest_single'] = releases_by_type['latest_single']
+        releases_by_type = await bot.get_latest_by_type_with_retries(spotify_data['id'])
+        if releases_by_type:
+            artist_data['latest_album'] = releases_by_type.get('latest_album')
+            artist_data['latest_single'] = releases_by_type.get('latest_single')
+        
         if isinstance(bot.artists, list):
             bot.artists.append(artist_data)
             await bot.save_data()
@@ -1343,7 +1365,7 @@ async def list_artists_command(interaction: discord.Interaction):
     
     # Create pagination view
     view = ArtistPaginationView(bot.artists)
-    embed = view.create_embed()
+    embed = await view.create_embed()
     
     # Only show pagination buttons if there are multiple pages
     if view.total_pages > 1:
@@ -1675,6 +1697,7 @@ class MusicGroup(app_commands.Group):
                             else:
                                 pass
                     except Exception as e:
+
                         pass
             try:
                 if location_events:
@@ -1684,7 +1707,8 @@ class MusicGroup(app_commands.Group):
                     events_per_page = 4
                     locations = sorted(location_events.items(), key=lambda x: (x[0][2], x[0][1], x[0][0]))
                     for i in range(0, len(locations), events_per_page):
-                        embed = discord.Embed(title="Upcoming Concerts in NH, MA, RI", color=0x1DB954)
+
+                        embed = discord.Embed(title="Upcoming Concerts in NH, MA, RI, CT", color=0x1DB954)
                         for (city, state, date), events in locations[i:i+events_per_page]:
                             loc_title = f"{city}, {state} — {date}"
                             desc_lines = []
@@ -1834,7 +1858,8 @@ class MusicGroup(app_commands.Group):
             debug_info += "```"
             
             # Format search query
-            search_results = youtube_api.search_videos(query, max_results=5)
+            async with aiohttp.ClientSession() as session:
+                search_results = await youtube_api.search_videos(session, query, max_results=5)
             
             if 'error' in search_results:
                 error_message = search_results['error'].get('message', 'Unknown error')
@@ -2014,9 +2039,10 @@ async def start_health_server():
 
 async def run_discord_bot():
     """Initialize and run the Discord bot"""
-    if not config.DISCORD_TOKEN:
-        print("❌ Discord token not configured. Please add DISCORD_TOKEN to your .env file.")
-        return
+    token = config.DISCORD_TOKEN or os.environ.get("DISCORD_TOKEN") or os.environ.get("DISCORD_BOT_TOKEN")
+    if not token:
+        print("❌ Discord token not configured. Please set DISCORD_TOKEN in config.py or as an environment variable.")
+        raise RuntimeError("Discord token not configured")
     
     bot = MusicBot()
     
@@ -2038,8 +2064,7 @@ async def main():
     """Main entry point that starts both the health server and Discord bot"""
     print("🚀 Starting Music Updater Discord Bot...")
     print(f"📁 Working directory: {os.getcwd()}")
-    print(f"🐍 Python version: {sys.version}")
-    print(f"🌍 Environment variables loaded: {bool(os.getenv('DISCORD_BOT_TOKEN'))}")
+    print(f"🐍 Python version: {sys.version.split()[0]}")
     
     # Start health check server for Render
     print("🏥 Starting health check server...")
