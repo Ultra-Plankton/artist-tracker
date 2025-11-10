@@ -110,8 +110,14 @@ Music Updater Project/
 ├── config.py            # Configuration settings
 ├── requirements.txt     # Python dependencies
 ├── .env.template        # Environment variables template
+├── archive/             # Archived experimental scripts & docs
 └── README.md           # This file
 ```
+
+### Archived tools
+
+Some experimental or one-off helper scripts were moved to the `archive/` folder to keep the repository root cleaner. See `ARCHIVE.md` for details about what was moved and why.
+
 
 ## Example Output
 
