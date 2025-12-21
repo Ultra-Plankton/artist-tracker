@@ -1,5 +1,6 @@
 from cloud_database import JSONBinDatabase
 import requests
+import io
 import urllib.parse
 from typing import Optional
 """
@@ -16,7 +17,8 @@ import sys
 import traceback
 import sys
 from datetime import datetime, time, timedelta
-import pytz  # Import the pytz library for timezone handling
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+import pytz
 from aiohttp import web
 import aiohttp
 import config
@@ -26,6 +28,17 @@ import json
 import math
 import requests
 import urllib.parse
+
+# Helper: get Eastern timezone with safe fallback if ZoneInfo DB is missing
+def get_eastern_tz():
+    try:
+        return ZoneInfo("America/New_York")
+    except Exception:
+        try:
+            # Fallback to pytz on systems without IANA tz database
+            return pytz.timezone('US/Eastern')
+        except Exception:
+            return None
 
 # YouTube API integration
 class YouTubeAPI:
@@ -105,24 +118,6 @@ class YouTubeAPI:
                 
             items_count = len(result.get('items', []))
             print(f"✅ Found {items_count} YouTube playlists for '{query}'")
-            
-            if items_count > 0:
-                for item in result['items']:
-                    playlist_id = item['id'].get('playlistId', 'N/A')
-                    title = item.get('snippet', {}).get('title', 'Unknown')
-                    channel = item.get('snippet', {}).get('channelTitle', 'Unknown')
-                    
-                    # Look for official content
-                    is_official = ("topic" in channel.lower() or 
-                                  "vevo" in channel.lower() or
-                                  "official" in channel.lower() or
-                                  "youtube music" in channel.lower())
-                    
-                    print(f"   Playlist: {title}")
-                    print(f"   Channel: {channel}")
-                    print(f"   Official: {'Yes' if is_official else 'No'}")
-                    print(f"   URL: https://www.youtube.com/playlist?list={playlist_id}")
-                    print(f"   Music URL: https://music.youtube.com/playlist?list={playlist_id}")
             
             return result
             
@@ -206,14 +201,6 @@ class YouTubeAPI:
             
             items_count = len(result.get('items', []))
             print(f"✅ Found {items_count} YouTube results for '{query}'")
-            
-            # Print first result for debugging
-            if items_count > 0:
-                first_item = result['items'][0]
-                video_id = first_item['id'].get('videoId', 'N/A')
-                title = first_item.get('snippet', {}).get('title', 'Unknown')
-                print(f"   First result: {title} (ID: {video_id})")
-                print(f"   URL: https://www.youtube.com/watch?v={video_id}")
             
             return result
         except asyncio.TimeoutError:
@@ -474,9 +461,29 @@ class ReleasePaginationView(discord.ui.View):
             "limit": 1
         }
         try:
-            async with session.get(base_url, params=params, timeout=5) as response:
+            # Some iTunes endpoints sometimes return a non-JSON mimetype (e.g. text/javascript)
+            # which makes aiohttp's response.json() raise ContentTypeError. Read text and
+            # parse manually to be resilient to that.
+            headers = {
+                "Accept": "application/json",
+                "User-Agent": "MusicUpdaterBot/1.0"
+            }
+            async with session.get(base_url, params=params, timeout=5, headers=headers) as response:
                 if response.status == 200:
-                    data = await response.json()
+                    text = await response.text()
+                    try:
+                        data = json.loads(text)
+                    except Exception:
+                        # Try to recover from JSONP-like responses such as: callback({...});
+                        import re
+                        m = re.search(r"\{.*\}", text, re.S)
+                        if m:
+                            try:
+                                data = json.loads(m.group(0))
+                            except Exception:
+                                raise
+                        else:
+                            raise
                     results = data.get("results", [])
                     if results:
                         # For albums, use collectionViewUrl; for singles, use trackViewUrl
@@ -754,6 +761,80 @@ class ArtistPaginationView(discord.ui.View):
         else:
             await interaction.response.defer()
 
+class ConcertsPaginationView(discord.ui.View):
+    """Pagination view for concerts locations"""
+
+    def __init__(self, locations, *, title="🎟️ Upcoming Concerts", days_ahead: int = 180, states: Optional[str] = None, timeout=300):
+        super().__init__(timeout=timeout)
+        self.locations = locations  # list of [((city,state,date), events)]
+        self.current_page = 0
+        self.page_size = 10  # locations per page
+        self.title = title
+        self.days_ahead = days_ahead
+        self.states = states
+        self.total_pages = math.ceil(len(locations) / self.page_size) if locations else 1
+        self.update_buttons()
+
+    def update_buttons(self):
+        self.previous_button.disabled = self.current_page == 0
+        self.next_button.disabled = self.current_page >= self.total_pages - 1
+
+    async def create_embed(self):
+        start_idx = self.current_page * self.page_size
+        end_idx = start_idx + self.page_size
+        page_locations = self.locations[start_idx:end_idx]
+
+        timestamp = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC"))
+        embed = discord.Embed(
+            title=self.title,
+            description=f"States: {self.states or 'All'} • Window: {self.days_ahead} days\nPage {self.current_page + 1} of {self.total_pages}",
+            color=0x1DB954,
+            timestamp=timestamp
+        )
+
+        max_events_per_location = 3
+        for (city, state_name, date), events in page_locations:
+            lines = []
+            for event_name, url, stubhub_url, artists_list in events[:max_events_per_location]:
+                artist_str = ", ".join(artists_list)
+                links = []
+                if url:
+                    links.append(f"[Ticketmaster]({url})")
+                if stubhub_url:
+                    links.append(f"[StubHub]({stubhub_url})")
+                links_str = " • ".join(links) if links else "No link available"
+                premium_tag = " • Premium" if "premium" in (event_name or "").lower() else ""
+                lines.append(f"**{event_name}**{premium_tag} — {artist_str}\n{links_str}")
+            field_value = "\n\n".join(lines) if lines else "No details available"
+            # Safe field name
+            field_name = f"{city}, {state_name} — {date}".strip()
+            if not (city or state_name):
+                field_name = f"Unknown location — {date}"
+            embed.add_field(name=field_name, value=field_value, inline=False)
+
+        total_events = sum(len(ev) for _, ev in self.locations)
+        embed.set_footer(text=f"Found {total_events} events across {len(self.locations)} locations • States: {self.states or 'All'}")
+        return embed
+
+    @discord.ui.button(label='◀️ Previous', style=discord.ButtonStyle.gray)
+    async def previous_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.update_buttons()
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
+        else:
+            await interaction.response.defer()
+
+    @discord.ui.button(label='▶️ Next', style=discord.ButtonStyle.gray)
+    async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if self.current_page < self.total_pages - 1:
+            self.current_page += 1
+            self.update_buttons()
+            await interaction.response.edit_message(embed=await self.create_embed(), view=self)
+        else:
+            await interaction.response.defer()
+
+
 class MusicBot(commands.Bot):
     def __init__(self):
         # Set up bot intents - only use basic intents to avoid privileged intent requirements
@@ -815,21 +896,32 @@ class MusicBot(commands.Bot):
 
     def setup_tasks(self):
         """Set up scheduled tasks for checking releases"""
-        # Define Eastern Time zone
-        eastern = pytz.timezone('US/Eastern')
+        # Define Eastern Time zone with safe fallback
+        eastern = get_eastern_tz() or ZoneInfo("UTC")
         
-        @tasks.loop(time=[time(0, 0), time(18, 0)])
+        release_times = [time(9, 0, tzinfo=eastern), time(18, 0, tzinfo=eastern)]
+
+        @tasks.loop(time=release_times)
         async def check_releases_scheduled():
             await self.check_and_notify_releases()
         
-        # Schedule weekly summary to run exactly at 12:05 AM Eastern Time every Friday
-        @tasks.loop(time=[time(0, 5)])
+        # Schedule weekly summary (and concerts) to run exactly at 12:05 AM Eastern Time every Friday
+        @tasks.loop(time=[time(0, 5, tzinfo=eastern)])
         async def weekly_summary_task():
-            now_eastern = datetime.now(pytz.UTC).astimezone(eastern)
+            now_eastern = datetime.now(tz=eastern)
             # Only run if it's Friday (weekday() == 4)
             if now_eastern.weekday() == 4:
-                print(f"📅 Running weekly summary for Friday at 12:05 AM... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
-                await self.send_weekly_summary()
+                print(f"📅 Running weekly summary + concerts for Friday at 12:05 AM... (EST time: {now_eastern.strftime('%Y-%m-%d %H:%M:%S')})")
+                concerts_locations = None
+                concerts_new_ids = None
+                concerts_result = await self.check_and_notify_concerts(schedule_label="Weekly check", return_data=True)
+                if concerts_result:
+                    concerts_locations = concerts_result[0]
+                    concerts_new_ids = concerts_result[1] if len(concerts_result) > 1 else None
+                await self.send_weekly_summary(
+                    concerts_locations=concerts_locations,
+                    concerts_new_ids_by_artist=concerts_new_ids,
+                )
 
         self.check_releases_task = check_releases_scheduled
         self.weekly_summary_task = weekly_summary_task
@@ -837,6 +929,14 @@ class MusicBot(commands.Bot):
     async def load_data(self):
         """Load artist data and bot settings asynchronously"""
         self.artists = await self.data_manager.load_artists()
+        # Ensure concerts tracking field exists for all artists
+        added_concert_field = False
+        for artist in self.artists:
+            if "notified_concert_ids" not in artist:
+                artist["notified_concert_ids"] = []
+                added_concert_field = True
+        if added_concert_field:
+            await self.save_data()
         bot_settings = await self.data_manager.load_bot_settings()
         if isinstance(bot_settings, dict):
             self.notification_channels = bot_settings.get('notification_channels', [])
@@ -862,6 +962,42 @@ class MusicBot(commands.Bot):
             'last_updated': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         return await self.data_manager.save_bot_settings(settings)
+
+    def get_seen_concert_ids_by_artist(self):
+        """Return a mapping of artist name -> set of notified Ticketmaster event IDs."""
+        mapping = {}
+        for artist in self.artists:
+            name = artist.get("name")
+            if not name:
+                continue
+            existing = artist.get("notified_concert_ids") or []
+            mapping[name.lower()] = set(existing)
+        return mapping
+
+    async def record_seen_concert_ids(self, new_event_ids_by_artist):
+        """Persist newly notified concert IDs to artists_data.json to avoid repeats."""
+        if not new_event_ids_by_artist:
+            return
+        updated = False
+        max_keep = 300  # cap stored IDs per artist to keep file small
+        for artist in self.artists:
+            name = artist.get("name")
+            if not name:
+                continue
+            key = name.lower()
+            ids_for_artist = new_event_ids_by_artist.get(key)
+            if ids_for_artist:
+                existing = list(dict.fromkeys(artist.get("notified_concert_ids", [])))
+                # Append new IDs while preserving order
+                for event_id in ids_for_artist:
+                    if event_id not in existing:
+                        existing.append(event_id)
+                if len(existing) > max_keep:
+                    existing = existing[-max_keep:]
+                artist["notified_concert_ids"] = existing
+                updated = True
+        if updated:
+            await self.save_data()
 
     async def add_notification_channel_async(self, channel_id: int):
         """Add a channel to receive automatic notifications asynchronously"""
@@ -894,7 +1030,7 @@ class MusicBot(commands.Bot):
         print(f'📊 Tracking {len(self.artists)} artists')
         if hasattr(self, 'check_releases_task') and not self.check_releases_task.is_running():
             self.check_releases_task.start()
-            print('🔄 PRODUCTION MODE: Release checks twice daily (9 AM & 6 PM)')
+            print('🔄 PRODUCTION MODE: Release checks twice daily (9 AM & 6 PM Eastern)')
         if hasattr(self, 'weekly_summary_task') and not self.weekly_summary_task.is_running():
             self.weekly_summary_task.start()
             print('📅 Weekly summary task started (Fridays at 12:05 AM EST)')
@@ -908,12 +1044,12 @@ class MusicBot(commands.Bot):
             )
             startup_embed.add_field(
                 name="📅 Schedule", 
-                value="Checking for releases twice daily (9 AM & 6 PM)", 
+                value="Releases: twice daily (9 AM & 6 PM)\nConcerts: weekly with Friday summary (12:05 AM)", 
                 inline=False
             )
             startup_embed.add_field(
                 name="🗓️ Weekly Summary", 
-                value="Every Friday at midnight - weekly release roundup", 
+                value="Every Friday at 12:05 AM - weekly release roundup", 
                 inline=False
             )
             startup_embed.add_field(
@@ -1042,8 +1178,353 @@ class MusicBot(commands.Bot):
                     except Exception as e2:
                         print(f"❌ Failed to send even simplified notification to channel {channel_id}: {e2}")
 
-    async def send_weekly_summary(self):
-        """Send a weekly summary of all releases from the past week"""
+    async def collect_concert_events(
+        self,
+        states: str = "NH,MA,RI,CT",
+        max_events: int = 5,
+        days_ahead: int = 180,
+        artists: Optional[list] = None,
+        seen_event_ids_by_artist: Optional[dict] = None,
+        return_event_ids: bool = False,
+    ):
+        """Collect upcoming concerts for artists.
+        
+        If ``artists`` is None, uses ``self.artists`` (loaded from ``artists_data.json`` via DataManager).
+        If ``seen_event_ids_by_artist`` is provided, skips events already notified for that artist (by Ticketmaster event ID).
+        When ``return_event_ids`` is True, returns a tuple of (locations, new_event_ids_by_artist).
+        Returns a list of ``[((city, state, date), [(event_name, url, stubhub_url, artists_list), ...])...]``
+        sorted by date, state, city.
+        """
+        api_key = getattr(config, "TICKETMASTER_API_KEY", None) or os.environ.get("TICKETMASTER_API_KEY")
+        if not api_key:
+            print("❌ Ticketmaster API key not configured - skipping concerts collection")
+            return []
+        target_artists = artists if artists is not None else self.artists
+        if not target_artists:
+            print("ℹ️ No tracked artists loaded - skipping concerts collection")
+            return []
+
+        from collections import defaultdict
+        import urllib.parse
+
+        base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
+        location_events = defaultdict(list)  # {(city, state, date): [ (event_name, url, stubhub, [artists]) ]}
+        seen_event_ids = set()
+        seen_map = {k: set(v) for k, v in (seen_event_ids_by_artist or {}).items()}
+        new_event_ids_by_artist = defaultdict(set) if return_event_ids else None
+        today = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC")).date()
+        latest_date = today + timedelta(days=days_ahead)
+
+        async with aiohttp.ClientSession() as session:
+            # Prepare state codes list (iterate per code for Ticketmaster compatibility)
+            state_codes = [s.strip() for s in str(states).split(",") if s.strip()] if states else [None]
+
+            # Build query list
+            queries = []
+            for artist in target_artists:
+                name = artist.get("name")
+                if not name:
+                    continue
+                for st in state_codes:
+                    queries.append((name, st))
+
+            # Limit concurrency to avoid rate limits
+            sem = asyncio.Semaphore(3)  # Reduced from 8 to 3
+
+            async def fetch_one(name: str, st_code: Optional[str]):
+                params = {
+                    "apikey": api_key,
+                    "keyword": name,
+                    "countryCode": "US",
+                    "size": max_events,
+                }
+                if st_code:
+                    params["stateCode"] = st_code
+                
+                # Retry with exponential backoff on rate limit
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        async with sem:
+                            # Add small delay between requests to avoid rate limiting
+                            await asyncio.sleep(0.25)
+                            async with session.get(base_url, params=params, timeout=10) as resp:
+                                status = resp.status
+                                
+                                # Handle rate limiting
+                                if status == 429:
+                                    retry_after = int(resp.headers.get('Retry-After', 2))
+                                    print(f"⚠️ Rate limited for '{name}' - waiting {retry_after}s (attempt {attempt+1}/{max_retries})")
+                                    if attempt < max_retries - 1:
+                                        await asyncio.sleep(retry_after)
+                                        continue
+                                    return name, st_code, None
+                                
+                                if status != 200:
+                                    print(f"⚠️ Concert lookup HTTP {status} for '{name}' (state={st_code or 'ALL'})")
+                                    return name, st_code, None
+                                
+                                data = await resp.json()
+                                raw_events = data.get("_embedded", {}).get("events", [])
+                                print(f"🎟️ Ticketmaster: '{name}' in {st_code or 'ALL'} — {len(raw_events)} raw events")
+                                return name, st_code, data
+                    except Exception as e:
+                        print(f"⚠️ Concert lookup failed for '{name}' (state={st_code or 'ALL'}): {e}")
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        return name, st_code, None
+                return name, st_code, None
+
+            results = await asyncio.gather(*(fetch_one(n, s) for (n, s) in queries), return_exceptions=False)
+
+            # Process all results
+            for name, st_code, data in results:
+                if not data:
+                    continue
+                events = data.get("_embedded", {}).get("events", [])
+                for event in events:
+                    event_id = event.get("id")
+                    artist_key = (name or "").lower()
+                    # Fallback ID to ensure we can persist seen events even if Ticketmaster omits event IDs
+                    fallback_id = event_id or f"{artist_key}|{event.get('name','unknown')}|{date_str}|{city}|{state_name}"
+                    if fallback_id:
+                        if fallback_id in seen_event_ids:
+                            continue
+                        if seen_map and artist_key in seen_map and fallback_id in seen_map[artist_key]:
+                            continue
+                    event_name = event.get("name", "Unknown Event")
+                    dates = event.get("dates", {}).get("start", {})
+                    date_str = dates.get("localDate") or dates.get("dateTime") or "?"
+                    try:
+                        event_date = datetime.fromisoformat(date_str).date() if date_str not in (None, "?") else None
+                    except Exception:
+                        event_date = None
+                    if event_date and (event_date < today or event_date > latest_date):
+                        continue
+
+                    venue = event.get("_embedded", {}).get("venues", [{}])[0]
+                    city = venue.get("city", {}).get("name", "")
+                    state_name = venue.get("state", {}).get("name", "")
+                    url = event.get("url", "")
+
+                    # Build artists list; accept all events returned by keyword search
+                    artists_list = []
+                    if "_embedded" in event and "attractions" in event["_embedded"]:
+                        for attr in event["_embedded"].get("attractions", []):
+                            nm = attr.get("name")
+                            if nm:
+                                artists_list.append(nm)
+                    if not artists_list:
+                        # Fallback: show the queried artist name if attractions missing
+                        artists_list = [name]
+
+                    stubhub_url = f"https://www.stubhub.com/find/s/?q={urllib.parse.quote_plus(event_name)}"
+                    key = (city, state_name, date_str or "?")
+                    location_events[key].append((event_name, url, stubhub_url, artists_list))
+                    if fallback_id:
+                        seen_event_ids.add(fallback_id)
+                        if new_event_ids_by_artist is not None:
+                            new_event_ids_by_artist[artist_key].add(fallback_id)
+
+        locations = sorted(location_events.items(), key=lambda x: (x[0][2], x[0][1], x[0][0]))
+        total_events = sum(len(ev) for _, ev in locations)
+        print(f"✅ Concerts aggregation complete — {total_events} events across {len(locations)} locations")
+        if return_event_ids:
+            return locations, {k: set(v) for k, v in (new_event_ids_by_artist or {}).items()}
+        return locations
+
+    async def collect_concert_events_raw(self, states: str = "NH,MA,RI,CT", max_events: int = 10, days_ahead: int = 365, artists: Optional[list] = None):
+        """Collect raw Ticketmaster events for artists without filtering by attractions/keywords.
+        Returns a flat list of dicts with keys: event_name, date, city, state, url, artists, premium.
+        """
+        api_key = getattr(config, "TICKETMASTER_API_KEY", None) or os.environ.get("TICKETMASTER_API_KEY")
+        if not api_key:
+            return []
+        target_artists = artists if artists is not None else self.artists
+        if not target_artists:
+            return []
+
+        results = []
+        today = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC")).date()
+        latest_date = today + timedelta(days=days_ahead)
+
+        async with aiohttp.ClientSession() as session:
+            state_codes = [s.strip() for s in str(states).split(",") if s.strip()] if states else [None]
+
+            sem = asyncio.Semaphore(3)  # Reduced from 8 to 3
+            base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
+
+            async def fetch_raw(name: str, st_code: Optional[str]):
+                params = {
+                    "apikey": api_key,
+                    "keyword": name,
+                    "countryCode": "US",
+                    "size": max_events,
+                }
+                if st_code:
+                    params["stateCode"] = st_code
+                
+                # Retry with exponential backoff on rate limit
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        async with sem:
+                            # Add small delay between requests
+                            await asyncio.sleep(0.25)
+                            async with session.get(base_url, params=params, timeout=10) as resp:
+                                # Handle rate limiting
+                                if resp.status == 429:
+                                    retry_after = int(resp.headers.get('Retry-After', 2))
+                                    print(f"⚠️ Rate limited for '{name}' - waiting {retry_after}s")
+                                    if attempt < max_retries - 1:
+                                        await asyncio.sleep(retry_after)
+                                        continue
+                                    return []
+                                
+                                if resp.status != 200:
+                                    return []
+                                data = await resp.json()
+                                events = data.get("_embedded", {}).get("events", [])
+                                out = []
+                                for event in events:
+                                    event_name = event.get("name", "Unknown Event")
+                                    dates = event.get("dates", {}).get("start", {})
+                                    date_str = dates.get("localDate") or dates.get("dateTime") or "?"
+                                    try:
+                                        event_date = datetime.fromisoformat(date_str).date() if date_str not in (None, "?") else None
+                                    except Exception:
+                                        event_date = None
+                                    if event_date and (event_date < today or event_date > latest_date):
+                                        continue
+                                    venue = event.get("_embedded", {}).get("venues", [{}])[0]
+                                    city = venue.get("city", {}).get("name", "")
+                                    state_name = venue.get("state", {}).get("name", "")
+                                    url = event.get("url", "")
+                                    artists_list = []
+                                    if "_embedded" in event and "attractions" in event["_embedded"]:
+                                        for attr in event["_embedded"].get("attractions", []):
+                                            nm = attr.get("name")
+                                            if nm:
+                                                artists_list.append(nm)
+                                    out.append({
+                                        "event_name": event_name,
+                                        "date": date_str or "?",
+                                        "city": city,
+                                        "state": state_name,
+                                        "url": url,
+                                        "artists": artists_list,
+                                        "premium": ("premium" in (event_name or "").lower()),
+                                    })
+                                return out
+                    except Exception:
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        return []
+                return []            # Build queries and fetch concurrently
+            queries = []
+            for artist in target_artists:
+                name = artist.get("name")
+                if not name:
+                    continue
+                for st in state_codes:
+                    queries.append((name, st))
+            raw_lists = await asyncio.gather(*(fetch_raw(n, s) for (n, s) in queries), return_exceptions=False)
+            for chunk in raw_lists:
+                results.extend(chunk)
+        return results
+
+    async def check_and_notify_concerts(
+        self,
+        states: str = "NH,MA,RI,CT",
+        max_events: int = 5,
+        *,
+        schedule_label: str = "Weekly check",
+        return_data: bool = False,
+    ):
+        """Fetch upcoming concerts for tracked artists and notify configured channels.
+
+        Filters out concerts already notified (stored in ``artists_data.json``) and optionally returns the
+        locations plus the new event IDs that were recorded.
+        """
+        skip_send = False
+        if not self.notification_channels:
+            skip_send = True
+            print("ℹ️ No notification channels configured - will collect concerts but skip sending")
+
+        seen_map = self.get_seen_concert_ids_by_artist()
+        result = await self.collect_concert_events(
+            states=states,
+            max_events=max_events,
+            days_ahead=30,  # keep scheduled notifications scoped to 30 days to avoid flooding
+            seen_event_ids_by_artist=seen_map,
+            return_event_ids=True,
+        )
+
+        locations: list = []
+        new_event_ids_by_artist: dict = {}
+        if isinstance(result, tuple):
+            locations, new_event_ids_by_artist = result
+        else:
+            locations = result
+
+        if not locations:
+            print("ℹ️ Concerts check: no events found")
+            return (locations, new_event_ids_by_artist) if return_data else None
+
+        max_locations = 10
+        max_events_per_location = 3
+        timestamp = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC"))
+
+        if not skip_send:
+            for channel_id in self.notification_channels:
+                channel = self.get_channel(channel_id)
+                if not isinstance(channel, (discord.TextChannel, discord.Thread)):
+                    continue
+                try:
+                    embed = discord.Embed(
+                        title="🎟️ Upcoming Concerts",
+                        description=f"{schedule_label} • States: {states or 'All'}",
+                        color=0x1DB954,
+                        timestamp=timestamp
+                    )
+
+                    for (city, state_name, date), events in locations[:max_locations]:
+                        lines = []
+                        for event_name, url, stubhub_url, artists_list in events[:max_events_per_location]:
+                            artist_str = ", ".join(artists_list)
+                            links = []
+                            if url:
+                                links.append(f"[Ticketmaster]({url})")
+                            if stubhub_url:
+                                links.append(f"[StubHub]({stubhub_url})")
+                            links_str = " • ".join(links) if links else "No link available"
+                            premium_tag = " • Premium" if "premium" in event_name.lower() else ""
+                            lines.append(f"**{event_name}**{premium_tag} — {artist_str}\n{links_str}")
+                        field_value = "\n\n".join(lines) if lines else "No details available"
+                        embed.add_field(name=f"{city}, {state_name} — {date}", value=field_value, inline=False)
+
+                    if len(locations) > max_locations:
+                        embed.set_footer(text=f"Showing first {max_locations} locations out of {len(locations)}")
+
+                    await channel.send(embed=embed)
+                    print(f"✅ Sent concerts update to channel {channel_id}")
+                except Exception as e:
+                    print(f"⚠️ Could not send concerts update to channel {channel_id}: {e}")
+
+        # Persist newly seen concerts so we skip them on the next weekly run
+        await self.record_seen_concert_ids(new_event_ids_by_artist)
+
+        if return_data:
+            return locations, new_event_ids_by_artist
+
+    async def send_weekly_summary(self, concerts_locations=None, concerts_new_ids_by_artist=None):
+        """Send a weekly summary of all releases from the past week.
+
+        Optionally pass ``concerts_locations`` (and ``concerts_new_ids_by_artist``) to reuse already-fetched
+        concerts data from the weekly concerts check.
+        """
         if not self.spotify.is_available():
             print("❌ Spotify API not available - skipping weekly summary")
             return
@@ -1111,16 +1592,34 @@ class MusicBot(commands.Bot):
             except Exception as e:
                 print(f"❌ Error checking weekly releases for {artist['name']}: {e}")
         
+        # Collect concerts for the summary (upcoming within next 30 days), skipping already-notified events
+        local_new_ids = concerts_new_ids_by_artist or {}
+        if concerts_locations is None:
+            seen_map = self.get_seen_concert_ids_by_artist()
+            result = await self.collect_concert_events(days_ahead=30, seen_event_ids_by_artist=seen_map, return_event_ids=True)
+            if isinstance(result, tuple):
+                concerts_locations, local_new_ids = result
+            else:
+                concerts_locations = result
+
         # Send weekly summary to all notification channels
         if weekly_releases:
-            await self.send_weekly_summary_notifications(weekly_releases, week_start, week_end)
+            await self.send_weekly_summary_notifications(weekly_releases, week_start, week_end, concerts_locations=concerts_locations)
             print(f"✅ Weekly summary sent: {len(weekly_releases)} releases")
+        elif concerts_locations:
+            # If no releases but concerts exist, send a concerts-only summary
+            await self.send_weekly_summary_notifications([], week_start, week_end, concerts_locations=concerts_locations)
+            print("ℹ️  Weekly summary sent with concerts only")
         else:
             # Send a "no releases" summary
             await self.send_no_releases_summary(week_start, week_end)
-            print("ℹ️  Weekly summary sent: no new releases")
+            print("ℹ️  Weekly summary sent: no new releases or concerts")
 
-    async def send_weekly_summary_notifications(self, weekly_releases, week_start, week_end):
+        # Persist newly seen concerts to avoid repeats on the next weekly run
+        if local_new_ids:
+            await self.record_seen_concert_ids(local_new_ids)
+
+    async def send_weekly_summary_notifications(self, weekly_releases, week_start, week_end, concerts_locations=None):
         """Send formatted weekly summary notifications, splitting into multiple embeds if needed."""
         albums = [r for r in weekly_releases if r['type'] == 'album']
         singles = [r for r in weekly_releases if r['type'] == 'single']
@@ -1188,8 +1687,41 @@ class MusicBot(commands.Bot):
             channel = self.get_channel(channel_id)
             if isinstance(channel, (discord.TextChannel, discord.Thread)):
                 try:
-                    view = WeeklySummaryView(albums, singles)
-                    embeds = await split_embeds(view)
+                    embeds = []
+                    if weekly_releases:
+                        view = WeeklySummaryView(albums, singles)
+                        embeds = await split_embeds(view)
+
+                    # Add concerts embed if available
+                    if concerts_locations:
+                        max_locations = 10
+                        max_events_per_location = 3
+                        timestamp = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC"))
+                        concerts_embed = discord.Embed(
+                            title="🎟️ Upcoming Concerts (next 30 days)",
+                            description="Based on your tracked artists",
+                            color=0x1DB954,
+                            timestamp=timestamp
+                        )
+                        for (city, state_name, date), events in concerts_locations[:max_locations]:
+                            lines = []
+                            for event_name, url, stubhub_url, artists_list in events[:max_events_per_location]:
+                                artist_str = ", ".join(artists_list)
+                                links = []
+                                if url:
+                                    links.append(f"[Ticketmaster]({url})")
+                                if stubhub_url:
+                                    links.append(f"[StubHub]({stubhub_url})")
+                                links_str = " • ".join(links) if links else "No link available"
+                                lines.append(f"**{event_name}** — {artist_str}\n{links_str}")
+                            field_value = "\n\n".join(lines) if lines else "No details available"
+                            concerts_embed.add_field(name=f"{city}, {state_name} — {date}", value=field_value, inline=False)
+
+                        if len(concerts_locations) > max_locations:
+                            concerts_embed.set_footer(text=f"Showing first {max_locations} locations out of {len(concerts_locations)}")
+
+                        embeds.append(concerts_embed)
+
                     for embed in embeds:
                         await channel.send(embed=embed)
                 except Exception as e:
@@ -1449,17 +1981,40 @@ async def setup_notifications_command(interaction: discord.Interaction, channel:
     if target_channel is None or not hasattr(target_channel, "id"):
         await interaction.response.send_message("❌ Could not determine the target channel for notifications.", ephemeral=True)
         return
-    member = getattr(interaction, "user", None)
+    # Resolve Member object (interaction.user may be a User or Member depending on context)
+    member = interaction.user if isinstance(interaction.user, discord.Member) else None
+    guild = getattr(interaction, "guild", None)
+    if not member and guild is not None:
+        # Try cached member first, then fetch from API if not found in cache
+        member = guild.get_member(interaction.user.id)
+        if member is None:
+            try:
+                member = await guild.fetch_member(interaction.user.id)
+            except Exception:
+                member = None
+
     has_permission = False
-    if hasattr(interaction, "guild") and interaction.guild is not None:
-        if isinstance(interaction.user, discord.Member):
-            has_permission = interaction.user.guild_permissions.manage_channels
+    # Guild-level checks: owner, administrator, or manage_channels
+    if member:
+        if getattr(interaction, "guild", None) and getattr(interaction.guild, "owner_id", None) == member.id:
+            has_permission = True
         else:
-            member = interaction.guild.get_member(interaction.user.id)
-            if member and hasattr(member, "guild_permissions"):
-                has_permission = member.guild_permissions.manage_channels
+            perms = getattr(member, "guild_permissions", None)
+            if perms:
+                has_permission = bool(perms.administrator or perms.manage_channels)
+
+    # Channel-level permission check if a specific channel was provided
+    if not has_permission and target_channel and member:
+        try:
+            ch_perms = target_channel.permissions_for(member)
+            if ch_perms and (ch_perms.administrator or ch_perms.manage_channels):
+                has_permission = True
+        except Exception:
+            # If permissions check fails for any reason, don't grant access
+            pass
+
     if not has_permission:
-        await interaction.response.send_message("❌ You need 'Manage Channels' permission to set up notifications.", ephemeral=True)
+        await interaction.response.send_message("❌ You must be the server owner, or have Administrator or Manage Channels permission to set up notifications.", ephemeral=True)
         return
     if await bot.add_notification_channel_async(target_channel.id):
         embed = discord.Embed(
@@ -1486,17 +2041,39 @@ async def remove_notifications_command(interaction: discord.Interaction, channel
     if target_channel is None or not hasattr(target_channel, "id"):
         await interaction.response.send_message("❌ Could not determine the target channel for notifications.", ephemeral=True)
         return
+    # Resolve Member object (interaction.user may be a User or Member depending on context)
+    member = interaction.user if isinstance(interaction.user, discord.Member) else None
+    guild = getattr(interaction, "guild", None)
+    if not member and guild is not None:
+        # Try cached member first, then fetch from the API if not cached
+        member = guild.get_member(interaction.user.id)
+        if member is None:
+            try:
+                member = await guild.fetch_member(interaction.user.id)
+            except Exception:
+                member = None
+
     has_permission = False
-    member = getattr(interaction, "user", None)
-    if hasattr(interaction, "guild") and interaction.guild is not None:
-        if isinstance(interaction.user, discord.Member):
-            has_permission = interaction.user.guild_permissions.manage_channels
+    # Guild-level checks: owner, administrator, or manage_channels
+    if member:
+        if getattr(interaction, "guild", None) and getattr(interaction.guild, "owner_id", None) == member.id:
+            has_permission = True
         else:
-            member = interaction.guild.get_member(interaction.user.id)
-            if member and hasattr(member, "guild_permissions"):
-                has_permission = member.guild_permissions.manage_channels
+            perms = getattr(member, "guild_permissions", None)
+            if perms:
+                has_permission = bool(perms.administrator or perms.manage_channels)
+
+    # Channel-level permission check if a specific channel was provided
+    if not has_permission and target_channel and member:
+        try:
+            ch_perms = target_channel.permissions_for(member)
+            if ch_perms and (ch_perms.administrator or ch_perms.manage_channels):
+                has_permission = True
+        except Exception:
+            pass
+
     if not has_permission:
-        await interaction.response.send_message("❌ You need 'Manage Channels' permission to manage notifications.", ephemeral=True)
+        await interaction.response.send_message("❌ You must be the server owner, or have Administrator or Manage Channels permission to manage notifications.", ephemeral=True)
         return
     if await bot.remove_notification_channel_async(target_channel.id):
         await interaction.response.send_message(f"✅ Notifications disabled for {getattr(target_channel, 'mention', getattr(target_channel, 'name', f'ID: {target_channel.id}'))}.", ephemeral=True)
@@ -1569,6 +2146,129 @@ async def weekly_summary_command(interaction: discord.Interaction):
         bot.notification_channels = original_channels
         await interaction.followup.send(f"❌ Error generating weekly summary: {str(e)}")
 
+async def song_lookup_command(interaction: discord.Interaction, query: str):
+    """Look up a song across Spotify, Apple Music, and YouTube Music"""
+    await interaction.response.defer()
+    
+    import re
+    import urllib.parse
+    
+    # Detect if query is a URL and extract metadata
+    spotify_match = re.search(r'open\.spotify\.com/(track|album)/([a-zA-Z0-9]+)', query)
+    apple_match = re.search(r'music\.apple\.com/[a-z]{2}/(album|song)/[^/]+/([0-9]+)', query)
+    youtube_match = re.search(r'(music\.youtube\.com|youtube\.com)/watch\?v=([a-zA-Z0-9_-]+)', query)
+    
+    artist_name = None
+    track_name = None
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            # If Spotify URL, extract metadata
+            if spotify_match:
+                content_type = spotify_match.group(1)
+                content_id = spotify_match.group(2)
+                bot: MusicBot = interaction.client  # type: ignore
+                
+                # Get track/album info from Spotify
+                if hasattr(bot, 'spotify') and bot.spotify.sp:
+                    try:
+                        data = None
+                        if content_type == 'track':
+                            data = bot.spotify.sp.track(content_id)
+                        else:
+                            data = bot.spotify.sp.album(content_id)
+                        
+                        if data:
+                            track_name = data.get('name')
+                            artist_name = data.get('artists', [{}])[0].get('name')
+                    except Exception as e:
+                        print(f"Error fetching Spotify metadata: {e}")
+            
+            # If no metadata extracted, use query as-is
+            if not artist_name or not track_name:
+                # Try to parse "Artist - Song" format
+                if ' - ' in query:
+                    parts = query.split(' - ', 1)
+                    artist_name = parts[0].strip()
+                    track_name = parts[1].strip()
+                else:
+                    track_name = query
+                    artist_name = ""
+            
+            search_query = f"{artist_name} {track_name}".strip()
+            
+            # Search all platforms
+            spotify_link = None
+            apple_link = None
+            youtube_link = None
+            
+            # Spotify search
+            bot: MusicBot = interaction.client  # type: ignore
+            if hasattr(bot, 'spotify') and bot.spotify.sp:
+                try:
+                    results = bot.spotify.sp.search(q=search_query, type='track', limit=1)
+                    if results:
+                        tracks = results.get('tracks', {}).get('items', [])
+                        if tracks:
+                            spotify_link = tracks[0]['external_urls']['spotify']
+                            if not artist_name:
+                                artist_name = tracks[0]['artists'][0]['name']
+                            if not track_name:
+                                track_name = tracks[0]['name']
+                except Exception as e:
+                    print(f"Error searching Spotify: {e}")
+            
+            # Apple Music search
+            apple_url = "https://itunes.apple.com/search"
+            params = {'term': search_query, 'entity': 'song', 'limit': 1}
+            async with session.get(apple_url, params=params, timeout=5) as resp:
+                if resp.status == 200:
+                    text = await resp.text()
+                    try:
+                        data = json.loads(text)
+                        results = data.get('results', [])
+                        if results and 'trackViewUrl' in results[0]:
+                            apple_link = results[0]['trackViewUrl']
+                    except Exception:
+                        pass
+            
+            # YouTube Music search
+            youtube_link = await get_youtube_music_topic_url(artist_name or "", track_name or query, try_music_link=True)
+            
+            # Build embed
+            embed = discord.Embed(
+                title=f"🔍 Song Lookup Results",
+                description=f"**{track_name}**" + (f" by {artist_name}" if artist_name else ""),
+                color=0x1DB954
+            )
+            
+            links = []
+            if spotify_link:
+                links.append(f"🎧 [Spotify]({spotify_link})")
+            if apple_link:
+                links.append(f"🍎 [Apple Music]({apple_link})")
+            if youtube_link:
+                links.append(f"🎵 [YouTube Music]({youtube_link})")
+            
+            if links:
+                embed.add_field(
+                    name="Available On",
+                    value="\n".join(links),
+                    inline=False
+                )
+            else:
+                embed.add_field(
+                    name="⚠️ No Results Found",
+                    value="Could not find this song on any platform. Try refining your search.",
+                    inline=False
+                )
+            
+            embed.set_footer(text="Music Updater Bot • Song Lookup")
+            await interaction.followup.send(embed=embed)
+            
+    except Exception as e:
+        await interaction.followup.send(f"❌ Error looking up song: {str(e)}")
+
 async def stats_command(interaction: discord.Interaction):
     """Show bot statistics"""
     bot: MusicBot = interaction.client  # type: ignore
@@ -1623,7 +2323,7 @@ async def help_command(interaction: discord.Interaction):
     
     embed.add_field(
         name="📢 About Notifications",
-        value="• Use `/music setup` to enable automatic notifications in a channel\n• Notifications run twice daily at 9 AM & 6 PM\n• Weekly summaries every Friday at midnight\n• Commands work in any channel, notifications go to configured channels",
+        value="• Use `/music setup` to enable automatic notifications in a channel\n• Releases: twice daily at 9 AM & 6 PM\n• Concerts: weekly with Friday summary (12:05 AM)\n• Weekly summaries every Friday at midnight\n• Commands work in any channel, notifications go to configured channels",
         inline=False
     )
     embed.set_footer(text="🔔 Bot works globally - no need to be in a specific channel!")
@@ -1633,170 +2333,113 @@ async def help_command(interaction: discord.Interaction):
 class MusicGroup(app_commands.Group):
 
     @app_commands.command(name="concerts", description="Show upcoming concerts for your tracked artists. Optionally filter by artist and state.")
-    async def concerts(self, interaction: discord.Interaction, artist: Optional[str] = None, state: Optional[str] = None):
-        """Show upcoming concerts for a specific artist or all tracked artists, optionally filtered by US state code(s)."""
-        import aiohttp
-        import urllib.parse
-        import traceback
+    @app_commands.describe(artist="Filter to a single artist", state="Comma-separated US state codes (e.g., MA,RI,CT)", days="Days ahead window (default 180)")
+    async def concerts(self, interaction: discord.Interaction, artist: Optional[str] = None, state: Optional[str] = None, days: Optional[int] = None):
+        """Show upcoming concerts using artists from `artists_data.json` (via bot data).
+
+        - If `artist` is provided, filters to that artist.
+        - If `state` is provided, uses it (comma-separated codes supported). Otherwise uses `config.TICKETMASTER_STATES` or default.
+        """
+        bot: MusicBot = interaction.client  # type: ignore
         TICKETMASTER_API_KEY = getattr(config, "TICKETMASTER_API_KEY", None) or os.environ.get("TICKETMASTER_API_KEY")
+        if not TICKETMASTER_API_KEY:
+            await interaction.response.send_message("❌ Ticketmaster API key not configured. Set TICKETMASTER_API_KEY in config or environment.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+
+        # Determine tracked artists from bot memory; fall back to local JSON if needed
+        tracked = []
         try:
-            if not TICKETMASTER_API_KEY:
-                await interaction.response.send_message("❌ Ticketmaster API key not configured. Please set TICKETMASTER_API_KEY in your config or environment.", ephemeral=True)
-                return
-            await interaction.response.defer()
-            db = JSONBinDatabase()
-            artists = await db.load_artists()
-            if artist:
-                tracked = [a for a in artists if a.get("name", "").lower() == artist.lower()]
-                if not tracked:
-                    await interaction.followup.send(f"❌ Artist '{artist}' not found in your tracked list.")
-                    return
+            if hasattr(bot, "artists") and bot.artists:
+                tracked = bot.artists
             else:
-                tracked = artists
-            if not tracked:
-                await interaction.followup.send("No tracked artists found.")
-                return
-            from collections import defaultdict
-            location_events = defaultdict(list)  # {(city, state, date): [ (event_name, url, [artist names]) ]}
-            seen_event_ids = set()
-            base_url = "https://app.ticketmaster.com/discovery/v2/events.json"
-            async with aiohttp.ClientSession() as session:
-                for a in tracked:
-                    name = a.get("name")
-                    if not name:
-                        continue
-                    params = {
-                        "apikey": TICKETMASTER_API_KEY,
-                        "keyword": name,
-                        "countryCode": "US",
-                        "size": 5
-                    }
-                    if "stateCode" not in params:
-                        params["stateCode"] = "NH,MA,RI,CT"
-                    url = base_url + "?" + urllib.parse.urlencode(params)
-                    try:
-                        async with session.get(url) as resp:
-                            data = await resp.json()
-                            events = data.get("_embedded", {}).get("events", [])
-                            if events:
-                                for event in events:
-                                    event_id = event.get("id")
-                                    if event_id in seen_event_ids:
-                                        continue
-                                    seen_event_ids.add(event_id)
-                                    event_name = event.get("name", "Unknown Event")
-                                    # Filter out events with 'Premium' in the name
-                                    if "premium" in event_name.lower():
-                                        continue
-                                    dates = event.get("dates", {}).get("start", {})
-                                    date = dates.get("localDate", "?")
-                                    venue = event.get("_embedded", {}).get("venues", [{}])[0]
-                                    city = venue.get("city", {}).get("name", "")
-                                    state = venue.get("state", {}).get("name", "")
-                                    url = event.get("url", "")
-                                    # Try to get all artists from the event's attractions if available
-                                    artists_list = []
-                                    if "_embedded" in event and "attractions" in event["_embedded"]:
-                                        for attr in event["_embedded"]["attractions"]:
-                                            if attr.get("name"):
-                                                artists_list.append(attr["name"])
-                                    # Only include event if tracked artist is in attractions (case-insensitive)
-                                    if artists_list:
-                                        # Require exact match (case-insensitive) between tracked artist and attraction
-                                        if not any(name.strip().lower() == a.strip().lower() for a in artists_list):
-                                            continue
-                                        # Show all artists for the event if matched
-                                        pass
-                                    else:
-                                        # If no attractions, fallback to keyword match (legacy behavior)
-                                        if name.strip().lower() not in event_name.lower():
-                                            continue
-                                        artists_list = [name]
-                                    stubhub_url = f"https://www.stubhub.com/find/s/?q={urllib.parse.quote_plus(event_name)}"
-                                    key = (city, state, date)
-                                    location_events[key].append((event_name, url, stubhub_url, artists_list))
-                            else:
-                                pass
-                    except Exception as e:
-
-                        pass
-            try:
-                if location_events:
-                    # Build grouped message per location, use Discord embeds, and paginate
-                    import math
-                    embeds = []
-                    events_per_page = 4
-                    locations = sorted(location_events.items(), key=lambda x: (x[0][2], x[0][1], x[0][0]))
-                    for i in range(0, len(locations), events_per_page):
-
-                        embed = discord.Embed(title="Upcoming Concerts in NH, MA, RI, CT", color=0x1DB954)
-                        for (city, state, date), events in locations[i:i+events_per_page]:
-                            loc_title = f"{city}, {state} — {date}"
-                            desc_lines = []
-                            for event_name, url, stubhub_url, artists_list in events:
-                                artist_str = ", ".join(artists_list)
-                                desc_lines.append(f"**{event_name}**\nArtists: {artist_str}")
-                            embed.add_field(name=loc_title, value="\n\n".join(desc_lines), inline=False)
-                        embed.set_footer(text=f"Page {math.ceil(i/events_per_page)+1}/{math.ceil(len(locations)/events_per_page)}")
-                        embeds.append(embed)
-
-                    class ConcertsEmbedPaginator(discord.ui.View):
-                        def __init__(self, embeds):
-                            super().__init__(timeout=180)
-                            self.embeds = embeds
-                            self.page = 0
-                            self.message = None
-                            # Add persistent buttons
-                            self.prev_button = discord.ui.Button(label="Prev", style=discord.ButtonStyle.secondary, custom_id="concerts_prev")
-                            self.next_button = discord.ui.Button(label="Next", style=discord.ButtonStyle.secondary, custom_id="concerts_next")
-                            self.page_label = discord.ui.Button(label=f"Page {self.page+1}/{len(self.embeds)}", style=discord.ButtonStyle.gray, disabled=True)
-                            self.prev_button.callback = self.prev
-                            self.next_button.callback = self.next
-                            self.update_buttons()
-
-                        def update_buttons(self):
-                            self.clear_items()
-                            self.prev_button.disabled = self.page == 0
-                            self.next_button.disabled = self.page == len(self.embeds)-1
-                            self.page_label.label = f"Page {self.page+1}/{len(self.embeds)}"
-                            self.add_item(self.prev_button)
-                            self.add_item(self.page_label)
-                            self.add_item(self.next_button)
-
-                        async def interaction_check(self, interaction: discord.Interaction) -> bool:
-                            orig_user = None
-                            msg = getattr(interaction, "message", None)
-                            if msg is not None:
-                                msg_interaction = getattr(msg, "interaction", None)
-                                if msg_interaction is not None:
-                                    orig_user = getattr(msg_interaction, "user", None)
-                            if orig_user:
-                                return interaction.user == orig_user
-                            return True
-
-                        async def prev(self, interaction: discord.Interaction):
-                            if self.page > 0:
-                                self.page -= 1
-                                self.update_buttons()
-                                await interaction.response.edit_message(embed=self.embeds[self.page], view=self)
-
-                        async def next(self, interaction: discord.Interaction):
-                            if self.page < len(self.embeds) - 1:
-                                self.page += 1
-                                self.update_buttons()
-                                await interaction.response.edit_message(embed=self.embeds[self.page], view=self)
-
-                    view = ConcertsEmbedPaginator(embeds)
-                    await interaction.followup.send(embed=embeds[0], view=view)
-                else:
-                    await interaction.followup.send("No upcoming concerts found in NH, MA, or RI for your tracked artists.")
-            except Exception as e:
-                await interaction.followup.send(f"❌ Error sending results to Discord: {e}")
+                with open("artists_data.json", "r", encoding="utf-8") as f:
+                    tracked = json.load(f)
         except Exception as e:
-            try:
-                await interaction.followup.send(f"❌ Fatal error in /concerts: {e}")
-            except:
-                pass
+            await interaction.followup.send(f"❌ Could not load artists from JSON: {e}")
+            return
+
+        # Optional filter by artist name
+        if artist:
+            filtered = [a for a in tracked if a.get("name", "").lower() == artist.lower()]
+            if not filtered:
+                await interaction.followup.send(f"❌ Artist '{artist}' not found in your tracked list.")
+                return
+            tracked = filtered
+
+        if not tracked:
+            await interaction.followup.send("📭 No tracked artists found.")
+            return
+
+        # To avoid long stalls, cap number of artists when not filtering by a single artist
+        truncated_note = None
+        if not artist and len(tracked) > 20:
+            truncated_note = f"(limited to first 20 of {len(tracked)} tracked artists)"
+            tracked = tracked[:20]
+
+        states_arg = None
+        if state and state.strip():
+            states_arg = state.strip()
+        else:
+            states_arg = getattr(config, "TICKETMASTER_STATES", None) or "NH,MA,RI,CT"
+
+        days_ahead = days if (isinstance(days, int) and days > 0) else getattr(config, "TICKETMASTER_DAYS_AHEAD", 30)
+
+        if not interaction.response.is_done():
+            await interaction.response.defer()
+
+        try:
+            locations = await bot.collect_concert_events(states=states_arg, max_events=5, days_ahead=days_ahead, artists=tracked)
+        except Exception as e:
+            await interaction.followup.send(f"❌ Error collecting concerts: {e}")
+            return
+
+        if not locations:
+            # Fallback: show raw Ticketmaster results for visibility
+            raw = await bot.collect_concert_events_raw(states=states_arg, max_events=10, days_ahead=days_ahead, artists=tracked)
+            if raw:
+                timestamp = datetime.now(tz=get_eastern_tz() or ZoneInfo("UTC"))
+                embed = discord.Embed(
+                    title="🎟️ Ticketmaster Raw Events",
+                    description=f"States: {states_arg or 'All'} • Unfiltered results",
+                    color=0x808080,
+                    timestamp=timestamp
+                )
+                max_items = 12
+                for item in raw[:max_items]:
+                    artists_str = ", ".join(item.get("artists") or []) or "Unknown"
+                    premium_tag = " • Premium" if item.get("premium") else ""
+                    links = []
+                    if item.get("url"):
+                        links.append(f"[Ticketmaster]({item['url']})")
+                    links_str = " • ".join(links) if links else "No link available"
+                    # Safe field name
+                    city = item.get('city','')
+                    state_name = item.get('state','')
+                    date = item.get('date','?')
+                    field_name = f"{city}, {state_name} — {date}".strip()
+                    if not (city or state_name):
+                        field_name = f"Unknown location — {date}"
+                    embed.add_field(
+                        name=field_name,
+                        value=f"**{item.get('event_name','Unknown Event')}**{premium_tag}\nArtists: {artists_str}\n{links_str}",
+                        inline=False
+                    )
+                if len(raw) > max_items:
+                    embed.set_footer(text=f"Showing first {max_items} of {len(raw)} raw events")
+                await interaction.followup.send(embed=embed)
+                return
+            await interaction.followup.send("ℹ️ No upcoming concerts found (and no raw events to display).")
+            return
+
+        # Paginate all locations to show full list
+        view = ConcertsPaginationView(locations, days_ahead=days_ahead, states=states_arg)
+        first_embed = await view.create_embed()
+        if view.total_pages > 1:
+            await interaction.followup.send(embed=first_embed, view=view)
+        else:
+            await interaction.followup.send(embed=first_embed)
     """Music tracking commands"""
     
     def __init__(self):
@@ -1841,199 +2484,11 @@ class MusicGroup(app_commands.Group):
     @app_commands.command(name='stats', description='Show bot statistics')
     async def stats(self, interaction: discord.Interaction):
         await stats_command(interaction)
-        
-    @app_commands.command(name='youtube', description='Search YouTube for a song (for debugging)')
-    @app_commands.describe(query="The song to search for (format: Artist - Song)")
-    async def youtube(self, interaction: discord.Interaction, query: str):
-        """Search YouTube for a song (debugging tool)"""
-        bot = interaction.client
-        
-        await interaction.response.defer()
-        
-        try:
-            print(f"🔍 YouTube search requested for: {query}")
-            
-            # Initialize the YouTube API module
-            api_key = config.YOUTUBE_API_KEY or os.environ.get('YOUTUBE_API_KEY', '')
-            youtube_api = YouTubeAPI(api_key)
-            
-            # Show detailed diagnostic information
-            debug_info = f"```\n"
-            debug_info += f"API Key Status: "
-            
-            if not api_key or len(api_key) < 10:
-                debug_info += "❌ INVALID (missing or too short)\n"
-            else:
-                debug_info += f"✅ VALID (masked: {api_key[:5]}...{api_key[-5:] if len(api_key) > 10 else ''})\n"
-            
-            debug_info += f"API Key Source: "
-            if config.YOUTUBE_API_KEY:
-                debug_info += "config.py\n"
-            elif os.environ.get('YOUTUBE_API_KEY'):
-                debug_info += "environment variable\n"
-            else:
-                debug_info += "NOT FOUND\n"
-                
-            debug_info += f"Query: {query}\n"
-            debug_info += f"YouTube Data API v3 URL: {youtube_api.base_url}/search\n"
-            debug_info += "```"
-            
-            # Format search query
-            async with aiohttp.ClientSession() as session:
-                search_results = await youtube_api.search_videos(session, query, max_results=5)
-            
-            if 'error' in search_results:
-                error_message = search_results['error'].get('message', 'Unknown error')
-                error_code = search_results['error'].get('code', 'Unknown')
-                
-                # Special handling for specific errors
-                if "expired" in error_message.lower():
-                    embed = discord.Embed(
-                        title="❌ YouTube API Key Expired",
-                        description="The YouTube API key has expired. Please generate a new API key in the Google Cloud Console.",
-                        color=0xff0000
-                    )
-                    embed.add_field(
-                        name="Error Details", 
-                        value=f"Code: {error_code}\nMessage: {error_message}",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="What to do", 
-                        value="1. Go to Google Cloud Console\n2. Navigate to API & Services > Credentials\n3. Create a new API key or renew the existing one\n4. Update your .env file with the new key",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="Debug Info", 
-                        value=debug_info,
-                        inline=False
-                    )
-                elif "quota" in error_message.lower():
-                    embed = discord.Embed(
-                        title="❌ YouTube API Quota Exceeded",
-                        description="You've reached the daily quota limit for YouTube API requests.",
-                        color=0xffa500
-                    )
-                    embed.add_field(
-                        name="What happened", 
-                        value="YouTube API has a daily quota limit (usually 10,000 units). Each search request uses 100 units.",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="What to do", 
-                        value="**Option 1:** Wait until tomorrow when the quota resets\n**Option 2:** Create a new Google Cloud project (not just a new key)\n**Option 3:** Use a different Google account to create a new project and API key",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="Creating a new project", 
-                        value="1. Go to [Google Cloud Console](https://console.cloud.google.com)\n2. Create a new project\n3. Enable YouTube Data API v3\n4. Create a new API key\n5. Update your .env file with the new key",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="Debug Info", 
-                        value=debug_info,
-                        inline=False
-                    )
-                else:
-                    embed = discord.Embed(
-                        title="❌ YouTube Search Failed",
-                        description=f"Error: {error_message}",
-                        color=0xff0000
-                    )
-                    embed.add_field(
-                        name="Error Details", 
-                        value=f"Code: {error_code}\nMessage: {error_message}",
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="Debug Info", 
-                        value=debug_info,
-                        inline=False
-                    )
-                    
-                    # Add fallback search link
-                    fallback_url = get_youtube_search_url(query)
-                    embed.add_field(
-                        name="Fallback Search Link", 
-                        value=f"[Search YouTube for '{query}'](${fallback_url})",
-                        inline=False
-                    )
-                
-                await interaction.followup.send(embed=embed)
-                return
-                
-            if not search_results.get('items', []):
-                embed = discord.Embed(
-                    title="🔍 No YouTube Results",
-                    description=f"No videos found for query: `{query}`",
-                    color=0xffa500
-                )
-                embed.add_field(
-                    name="Debug Info", 
-                    value=debug_info,
-                    inline=False
-                )
-                fallback_url = get_youtube_search_url(query)
-                embed.add_field(
-                    name="Try manual search", 
-                    value=f"[Search YouTube for '{query}'](${fallback_url})",
-                    inline=False
-                )
-                await interaction.followup.send(embed=embed)
-                return
-                
-            # Create the results embed
-            embed = discord.Embed(
-                title=f"🎵 YouTube Results for: {query}",
-                description=f"Found {len(search_results.get('items', []))} videos",
-                color=0xff0000  # YouTube red
-            )
-            
-            for i, item in enumerate(search_results.get('items', [])[:5], 1):
-                video_id = item['id'].get('videoId')
-                if video_id:
-                    title = item.get('snippet', {}).get('title', 'Unknown')
-                    channel = item.get('snippet', {}).get('channelTitle', 'Unknown channel')
-                    url = f"https://www.youtube.com/watch?v={video_id}"
-                    
-                    embed.add_field(
-                        name=f"{i}. {title}",
-                        value=f"Channel: {channel}\n[Watch on YouTube]({url})",
-                        inline=False
-                    )
-            
-            # Add debug info
-            embed.add_field(
-                name="Debug Info", 
-                value=debug_info,
-                inline=False
-            )
-                
-            await interaction.followup.send(embed=embed)
-            
-        except Exception as e:
-            error_msg = f"❌ Error searching YouTube: {str(e)}"
-            print(error_msg)
-            
-            # Create error embed with traceback
-            error_embed = discord.Embed(
-                title="❌ Unexpected Error",
-                description=f"An error occurred while searching YouTube: {str(e)}",
-                color=0xff0000
-            )
-            
-            import traceback
-            tb = traceback.format_exc()
-            if len(tb) > 1000:
-                tb = tb[:997] + "..."
-                
-            error_embed.add_field(
-                name="Error Details", 
-                value=f"```python\n{tb}```",
-                inline=False
-            )
-            
-            await interaction.followup.send(embed=error_embed)
+    
+    @app_commands.command(name='song', description='Look up a song across Spotify, Apple Music, and YouTube Music')
+    @app_commands.describe(query="Song name, 'Artist - Song', or a URL from Spotify/Apple Music/YouTube")
+    async def song(self, interaction: discord.Interaction, query: str):
+        await song_lookup_command(interaction, query)
 
 # Initialize and run bot
 async def health_check(request):
@@ -2050,13 +2505,23 @@ async def start_health_server():
     app.router.add_get('/health', health_check)
     app.router.add_get('/', health_check)  # Root endpoint too
     
-    port = int(os.environ.get('PORT', 8080))  # Render uses PORT env var
+    preferred_port = int(os.environ.get('PORT', 8080))  # Render uses PORT env var
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', port)
-    await site.start()
-    print(f"🏥 Health check server started on port {port}")
-    return runner
+
+    # Try preferred port, fall back to next few if in use
+    last_exc = None
+    for port in [preferred_port] + list(range(8081, 8091)) + [0]:
+        try:
+            site = web.TCPSite(runner, '0.0.0.0', port)
+            await site.start()
+            print(f"🏥 Health check server started on port {port}")
+            return runner
+        except OSError as e:
+            last_exc = e
+            continue
+    # If all attempts fail, raise the last error
+    raise last_exc or RuntimeError("Unable to start health server")
 
 async def run_discord_bot():
     """Initialize and run the Discord bot"""
@@ -2071,7 +2536,7 @@ async def run_discord_bot():
     bot.tree.add_command(MusicGroup())
     
     try:
-        await bot.start(config.DISCORD_TOKEN)
+        await bot.start(token)
     except KeyboardInterrupt:
         print("\n🛑 Bot shutdown requested...")
     except Exception as e:

@@ -32,62 +32,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
-      "name": "TRUE POWER (EXPANDED)",
-      "release_date": "2024-09-20",
+      "name": "Violent Nature",
+      "release_date": "2025-09-19",
       "type": "album",
-      "total_tracks": 19,
+      "total_tracks": 10,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/05l8JgDcorVDRyky1RT8fL"
+        "spotify": "https://open.spotify.com/album/7r72bICF1RIxeNOKCGDP6U"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273d5f76ee124771f35365d6f6c",
+          "url": "https://i.scdn.co/image/ab67616d0000b2734ae5f12fb17e1674e8f73d41",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02d5f76ee124771f35365d6f6c",
+          "url": "https://i.scdn.co/image/ab67616d00001e024ae5f12fb17e1674e8f73d41",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851d5f76ee124771f35365d6f6c",
+          "url": "https://i.scdn.co/image/ab67616d000048514ae5f12fb17e1674e8f73d41",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=8BMXHQg9WqE"
+      ]
     },
     "latest_single": {
-      "name": "Rain",
-      "release_date": "2025-07-18",
+      "name": "Annihilate Me",
+      "release_date": "2025-08-15",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 4,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/3ndeaQffdBCpmpIzfoQz53"
+        "spotify": "https://open.spotify.com/album/1rjNoRofF8n9tZHyU6tqPc"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2735900ed4f73be877f61697306",
+          "url": "https://i.scdn.co/image/ab67616d0000b273f36b5e297e6a53acc82486d7",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e025900ed4f73be877f61697306",
+          "url": "https://i.scdn.co/image/ab67616d00001e02f36b5e297e6a53acc82486d7",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048515900ed4f73be877f61697306",
+          "url": "https://i.scdn.co/image/ab67616d00004851f36b5e297e6a53acc82486d7",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=84ZhXE--cd8"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "The Devil Wears Prada",
@@ -126,62 +125,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
-      "name": "Color Decay (Deluxe)",
-      "release_date": "2023-05-05",
+      "name": "Flowers",
+      "release_date": "2025-11-14",
       "type": "album",
-      "total_tracks": 22,
+      "total_tracks": 14,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/4ivtHYEdInBvOFptjVmEYf"
+        "spotify": "https://open.spotify.com/album/6JW8DvN9gf8LJNizwK8dEc"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273589ac9b84f147a845a41acf1",
+          "url": "https://i.scdn.co/image/ab67616d0000b2731982f0b455fcffce2653235c",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02589ac9b84f147a845a41acf1",
+          "url": "https://i.scdn.co/image/ab67616d00001e021982f0b455fcffce2653235c",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851589ac9b84f147a845a41acf1",
+          "url": "https://i.scdn.co/image/ab67616d000048511982f0b455fcffce2653235c",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=pws_vsvuv_c"
+      ]
     },
     "latest_single": {
-      "name": "For You",
-      "release_date": "2025-04-17",
+      "name": "Everybody Knows",
+      "release_date": "2025-10-23",
       "type": "single",
-      "total_tracks": 2,
+      "total_tracks": 7,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/3BbqSd8P0jhMN7i4i3SNv1"
+        "spotify": "https://open.spotify.com/album/13gb5lKK6fIsAEYMzEg9Qs"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2732be3555c570e1e35bbf44b1e",
+          "url": "https://i.scdn.co/image/ab67616d0000b2731dd7288c58847c624ccd588d",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e022be3555c570e1e35bbf44b1e",
+          "url": "https://i.scdn.co/image/ab67616d00001e021dd7288c58847c624ccd588d",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048512be3555c570e1e35bbf44b1e",
+          "url": "https://i.scdn.co/image/ab67616d000048511dd7288c58847c624ccd588d",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=aWrSkYQMAiQ"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Beartooth",
@@ -217,7 +215,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "I Was A... LIVE",
@@ -247,32 +245,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=pnGTAeUZ1EA"
     },
     "latest_single": {
-      "name": "The Better Me",
-      "release_date": "2023-09-15",
+      "name": "Everything Burns (feat. Beartooth)",
+      "release_date": "2025-12-17",
       "type": "single",
       "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/29ryaHa8XIbX6bPJ8KmfRm"
+        "spotify": "https://open.spotify.com/album/4jsUVte5X0LXHuFIE281qq"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273f9d6a052cdcb12da99fdb994",
+          "url": "https://i.scdn.co/image/ab67616d0000b27366a0401ac054ec7f32303b82",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02f9d6a052cdcb12da99fdb994",
+          "url": "https://i.scdn.co/image/ab67616d00001e0266a0401ac054ec7f32303b82",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851f9d6a052cdcb12da99fdb994",
+          "url": "https://i.scdn.co/image/ab67616d0000485166a0401ac054ec7f32303b82",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=dKTKxGwjT18"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "The Amity Affliction",
@@ -309,7 +307,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Let The Ocean Take Me (Redux)",
@@ -364,7 +362,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=jtNl9iBvHMI"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Ice Nine Kills",
@@ -400,7 +399,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "I Heard They Kill Live 2",
@@ -430,32 +429,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=TLqNuecwmqU"
     },
     "latest_single": {
-      "name": "The Great Unknown",
-      "release_date": "2025-07-09",
+      "name": "The Laugh Track",
+      "release_date": "2025-10-09",
       "type": "single",
-      "total_tracks": 2,
+      "total_tracks": 3,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6fE894gRLhqsRjiW2sgLTP"
+        "spotify": "https://open.spotify.com/album/6uo9LWc5MS8CZ2QWFMEyrz"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273d1cbd0c1989d8a4377e548a1",
+          "url": "https://i.scdn.co/image/ab67616d0000b273431bf484483ceb807c4fa1e4",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02d1cbd0c1989d8a4377e548a1",
+          "url": "https://i.scdn.co/image/ab67616d00001e02431bf484483ceb807c4fa1e4",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851d1cbd0c1989d8a4377e548a1",
+          "url": "https://i.scdn.co/image/ab67616d00004851431bf484483ceb807c4fa1e4",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=QQXvdAHLeMU"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Alpha Wolf",
@@ -492,7 +491,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Half Living Things",
@@ -547,7 +546,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=wkvv9LxOtBc"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Fit For A King",
@@ -587,7 +587,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Lonely God",
@@ -642,7 +642,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=nH-lXZ6m9bM"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Halestorm",
@@ -675,7 +676,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Everest",
@@ -705,32 +706,32 @@
       "youtube_link": "https://music.youtube.com/playlist?list=OLAK5uy_npDTeWynLhaA4CWP7eVeCj1-2CYu7ZpDw"
     },
     "latest_single": {
-      "name": "Like A Woman Can",
-      "release_date": "2025-08-07",
+      "name": "Live From The nEVEREST Tour",
+      "release_date": "2025-11-11",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 2,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6LkUfqtmzY7N9NlnDEW11B"
+        "spotify": "https://open.spotify.com/album/017MSgoEpZr9QH1ChXei51"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273fc2676cf9cdd40695ad05873",
+          "url": "https://i.scdn.co/image/ab67616d0000b273f87ea35dd50efada885cb86b",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02fc2676cf9cdd40695ad05873",
+          "url": "https://i.scdn.co/image/ab67616d00001e02f87ea35dd50efada885cb86b",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851fc2676cf9cdd40695ad05873",
+          "url": "https://i.scdn.co/image/ab67616d00004851f87ea35dd50efada885cb86b",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=KGWTl6g7fm8"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Our Last Night",
@@ -766,7 +767,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Covers Only, Vol. 1",
@@ -796,32 +797,32 @@
       "youtube_link": "https://music.youtube.com/playlist?list=OLAK5uy_l7DlWQnvAAa_psmWaR45kYor2Pf254IWc"
     },
     "latest_single": {
-      "name": "Lose Control",
-      "release_date": "2025-07-25",
+      "name": "It's the Most Wonderful Time of the Year",
+      "release_date": "2025-12-19",
       "type": "single",
       "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/0V5YauW5H7qqrlJuRqgLIN"
+        "spotify": "https://open.spotify.com/album/5rTIaPTiWSf92uvUyvbFdV"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273a62aeb52ae08ad29e4140de3",
+          "url": "https://i.scdn.co/image/ab67616d0000b27303d6ec9ae7fa30ce04f94561",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02a62aeb52ae08ad29e4140de3",
+          "url": "https://i.scdn.co/image/ab67616d00001e0203d6ec9ae7fa30ce04f94561",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851a62aeb52ae08ad29e4140de3",
+          "url": "https://i.scdn.co/image/ab67616d0000485103d6ec9ae7fa30ce04f94561",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=JtsuBJEqiuE"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "From Ashes to New",
@@ -857,7 +858,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Blackout (Deluxe)",
@@ -887,32 +888,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=qAuKL6mlc8M"
     },
     "latest_single": {
-      "name": "New Disease",
-      "release_date": "2025-07-25",
+      "name": "Drag Me",
+      "release_date": "2025-12-05",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 2,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/23L4tjuxXU9eTZ1Zs1VZDf"
+        "spotify": "https://open.spotify.com/album/51cx1iKhj118oEWzs5QlKj"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2736c4357835601c501bc8eea28",
+          "url": "https://i.scdn.co/image/ab67616d0000b273cdeb571ff94ca9556460dc3b",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e026c4357835601c501bc8eea28",
+          "url": "https://i.scdn.co/image/ab67616d00001e02cdeb571ff94ca9556460dc3b",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048516c4357835601c501bc8eea28",
+          "url": "https://i.scdn.co/image/ab67616d00004851cdeb571ff94ca9556460dc3b",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=0xMBbvvO5Uk"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Nevertel",
@@ -947,34 +948,33 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
-      "name": "RE:WYRED.exe",
-      "release_date": "2021-12-17",
+      "name": "Start Again",
+      "release_date": "2025-09-12",
       "type": "album",
-      "total_tracks": 8,
+      "total_tracks": 13,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6LvcWIyNPbwHaag5WlyMzg"
+        "spotify": "https://open.spotify.com/album/2AGCv5fNiNdsxyHBhm7fiA"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273e56793471f6ffdb07c8df479",
+          "url": "https://i.scdn.co/image/ab67616d0000b273b71c0756ba96ba1a82a0a3ce",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02e56793471f6ffdb07c8df479",
+          "url": "https://i.scdn.co/image/ab67616d00001e02b71c0756ba96ba1a82a0a3ce",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851e56793471f6ffdb07c8df479",
+          "url": "https://i.scdn.co/image/ab67616d00004851b71c0756ba96ba1a82a0a3ce",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=x-4h_g4lJW4"
+      ]
     },
     "latest_single": {
       "name": "Some Things",
@@ -1002,7 +1002,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=BnyfAV4rLX4"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Dayseeker",
@@ -1038,62 +1039,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
-      "name": "Replica",
-      "release_date": "2024-04-19",
+      "name": "Creature In The Black Night",
+      "release_date": "2025-10-24",
       "type": "album",
-      "total_tracks": 10,
+      "total_tracks": 11,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/33aJkl5A1vpYnTk9rNqKzr"
+        "spotify": "https://open.spotify.com/album/331dpokIUtNiVsUuDPLl9h"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b27308d56183c13d288879255605",
+          "url": "https://i.scdn.co/image/ab67616d0000b273d7a0cbf48e93267debc701a0",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e0208d56183c13d288879255605",
+          "url": "https://i.scdn.co/image/ab67616d00001e02d7a0cbf48e93267debc701a0",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d0000485108d56183c13d288879255605",
+          "url": "https://i.scdn.co/image/ab67616d00004851d7a0cbf48e93267debc701a0",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=3FVPrEAvfB8"
+      ]
     },
     "latest_single": {
-      "name": "Creature In The Black Night",
-      "release_date": "2025-07-09",
+      "name": "Crawl Back To My Coffin",
+      "release_date": "2025-10-22",
       "type": "single",
-      "total_tracks": 2,
+      "total_tracks": 5,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/2YWEecYJkLwMbNOG1o4cap"
+        "spotify": "https://open.spotify.com/album/7JWTIDOEdhFeAA3ipvMEkI"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273c8430cf0da5824f568199aba",
+          "url": "https://i.scdn.co/image/ab67616d0000b273e6fb164fa9359146acdd4f46",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02c8430cf0da5824f568199aba",
+          "url": "https://i.scdn.co/image/ab67616d00001e02e6fb164fa9359146acdd4f46",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851c8430cf0da5824f568199aba",
+          "url": "https://i.scdn.co/image/ab67616d00004851e6fb164fa9359146acdd4f46",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=X-mNYFFP1aw"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Shinedown",
@@ -1130,7 +1130,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Planet Zero",
@@ -1160,32 +1160,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=IipnUpoW-58"
     },
     "latest_single": {
-      "name": "Killing Fields",
-      "release_date": "2025-07-15",
+      "name": "Searchlight",
+      "release_date": "2025-11-18",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 4,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/0bitrBOkeCj6Zzy7yl2Ijx"
+        "spotify": "https://open.spotify.com/album/4O3TIz80IlOC5Ya0PbfUlJ"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2732d8a282c7391443b70871233",
+          "url": "https://i.scdn.co/image/ab67616d0000b273a0fa994eaae8262c6076c778",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e022d8a282c7391443b70871233",
+          "url": "https://i.scdn.co/image/ab67616d00001e02a0fa994eaae8262c6076c778",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048512d8a282c7391443b70871233",
+          "url": "https://i.scdn.co/image/ab67616d00004851a0fa994eaae8262c6076c778",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=mV5i3fzqluU"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Spiritbox",
@@ -1222,7 +1222,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Tsunami Sea",
@@ -1252,32 +1252,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=hsKtH4gp6Vk"
     },
     "latest_single": {
-      "name": "Crystal Roses",
-      "release_date": "2025-03-04",
+      "name": "Ties That Bind (feat. Courtney LaPlante of Spiritbox)",
+      "release_date": "2025-10-06",
       "type": "single",
-      "total_tracks": 4,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/5I6pmP96LxAOc3fID57YcM"
+        "spotify": "https://open.spotify.com/album/7KkQ2wX2VoNoEyFCfRzHwO"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273b0aa2302c0e0ae486dfc0702",
+          "url": "https://i.scdn.co/image/ab67616d0000b2733fa327235c20c07e35711d06",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02b0aa2302c0e0ae486dfc0702",
+          "url": "https://i.scdn.co/image/ab67616d00001e023fa327235c20c07e35711d06",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851b0aa2302c0e0ae486dfc0702",
+          "url": "https://i.scdn.co/image/ab67616d000048513fa327235c20c07e35711d06",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=7-0tw8EaUas"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Architects",
@@ -1317,7 +1317,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "The Sky, The Earth & All Between",
@@ -1372,7 +1372,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=W4ZlWw987KI"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Poppy",
@@ -1405,7 +1406,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
       "name": "Negative Spaces",
@@ -1435,32 +1436,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=EiG82CSq948"
     },
     "latest_single": {
-      "name": "from me to u (feat. Poppy)",
-      "release_date": "2025-04-04",
+      "name": "Guardian",
+      "release_date": "2025-12-04",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 3,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/2oxRRkR4Rj2aPCB63NsjZn"
+        "spotify": "https://open.spotify.com/album/0Wm5jDuL2Ph5ce9WqjXNM8"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273ea8bf6010a9433696872465e",
+          "url": "https://i.scdn.co/image/ab67616d0000b273bd88a0034c3924550f66b9d3",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02ea8bf6010a9433696872465e",
+          "url": "https://i.scdn.co/image/ab67616d00001e02bd88a0034c3924550f66b9d3",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851ea8bf6010a9433696872465e",
+          "url": "https://i.scdn.co/image/ab67616d00004851bd88a0034c3924550f66b9d3",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=qayP_YUrf9I"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Zero 9:36",
@@ -1493,62 +1494,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:13",
     "latest_release": null,
     "latest_album": {
-      "name": "None of Us Are Getting Out",
-      "release_date": "2024-09-06",
+      "name": "They Were Always Here",
+      "release_date": "2025-12-12",
       "type": "album",
-      "total_tracks": 8,
+      "total_tracks": 9,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/4YxZwEQ5NfFltplX8isIlj"
+        "spotify": "https://open.spotify.com/album/6qL50fXDRthHQTp9O24say"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b27343270c85e14f39ffa90cd9e6",
+          "url": "https://i.scdn.co/image/ab67616d0000b2736f6a77bf777413d32c206706",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e0243270c85e14f39ffa90cd9e6",
+          "url": "https://i.scdn.co/image/ab67616d00001e026f6a77bf777413d32c206706",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d0000485143270c85e14f39ffa90cd9e6",
+          "url": "https://i.scdn.co/image/ab67616d000048516f6a77bf777413d32c206706",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=ZBjDiVSdLTM"
+      ]
     },
     "latest_single": {
-      "name": "Chasing Shadows (Feat. Brandon Saller of Atreyu)",
-      "release_date": "2025-01-24",
+      "name": "Holding On",
+      "release_date": "2025-11-21",
       "type": "single",
       "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/0iQY3aaPTbpMtyIOeGjCTP"
+        "spotify": "https://open.spotify.com/album/7eGsWt8otdCw1IUShUJmrJ"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738ba47c8978b23f9852ef5d3a",
+          "url": "https://i.scdn.co/image/ab67616d0000b273cd07b8678be938921420a174",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028ba47c8978b23f9852ef5d3a",
+          "url": "https://i.scdn.co/image/ab67616d00001e02cd07b8678be938921420a174",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518ba47c8978b23f9852ef5d3a",
+          "url": "https://i.scdn.co/image/ab67616d00004851cd07b8678be938921420a174",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=_dfNm7A_TIU"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "While She Sleeps",
@@ -1585,7 +1585,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "SELF HELL",
@@ -1640,7 +1640,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=VwEJvGm9e70"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Currents",
@@ -1678,7 +1679,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "The Death We Seek",
@@ -1708,32 +1709,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=aC7Z-3k7fsA"
     },
     "latest_single": {
-      "name": "It Only Gets Darker",
-      "release_date": "2025-07-18",
+      "name": "All That Follows",
+      "release_date": "2025-10-31",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 5,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/0Lb1q2XEatoB4ZKP8FtjQo"
+        "spotify": "https://open.spotify.com/album/14jkNNtzXEMEYVe1NHE7G8"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273e451f91a73cc6c1dfa60b564",
+          "url": "https://i.scdn.co/image/ab67616d0000b27341e31a3858f0b93d4818678a",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02e451f91a73cc6c1dfa60b564",
+          "url": "https://i.scdn.co/image/ab67616d00001e0241e31a3858f0b93d4818678a",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851e451f91a73cc6c1dfa60b564",
+          "url": "https://i.scdn.co/image/ab67616d0000485141e31a3858f0b93d4818678a",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=SfpVmH5jzd4"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Nekrogoblikon",
@@ -1770,7 +1771,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "The Fundamental Slimes and Humours",
@@ -1825,7 +1826,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=ahT3UrbOn0c"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Bad Omens",
@@ -1860,7 +1862,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "CONCRETE JUNGLE [THE OST]",
@@ -1890,32 +1892,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=o3xHEJZs7as"
     },
     "latest_single": {
-      "name": "Specter",
-      "release_date": "2025-08-09",
+      "name": "Left For Good",
+      "release_date": "2025-11-18",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 4,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/3fYDQx9Lr6QC9uikAPx6H4"
+        "spotify": "https://open.spotify.com/album/3i3GvVgRCQzAYbMeWUSzMq"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273291facfe6e704c2a78d36782",
+          "url": "https://i.scdn.co/image/ab67616d0000b2735b74e67b65336e30c0330804",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02291facfe6e704c2a78d36782",
+          "url": "https://i.scdn.co/image/ab67616d00001e025b74e67b65336e30c0330804",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851291facfe6e704c2a78d36782",
+          "url": "https://i.scdn.co/image/ab67616d000048515b74e67b65336e30c0330804",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=EUe9UhcUtEI"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Motionless In White",
@@ -1952,7 +1954,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Scoring The End Of The World (Deluxe Edition)",
@@ -2007,7 +2009,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=EVKv3PKH-xg"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "We Came As Romans",
@@ -2044,62 +2047,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "Darkbloom",
-      "release_date": "2022-10-14",
+      "name": "ALL IS BEAUTIFUL… BECAUSE WE'RE DOOMED",
+      "release_date": "2025-08-22",
       "type": "album",
-      "total_tracks": 10,
+      "total_tracks": 13,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/15q7078X1sRf9ivhEnv1tm"
+        "spotify": "https://open.spotify.com/album/42KPmh26BJtkXWEQqsfIQ3"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2732aaa9372a6922e6e3575d828",
+          "url": "https://i.scdn.co/image/ab67616d0000b2730496a68266b92e90d8cd623e",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e022aaa9372a6922e6e3575d828",
+          "url": "https://i.scdn.co/image/ab67616d00001e020496a68266b92e90d8cd623e",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048512aaa9372a6922e6e3575d828",
+          "url": "https://i.scdn.co/image/ab67616d000048510496a68266b92e90d8cd623e",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=ogZzp4pG4tE"
+      ]
     },
     "latest_single": {
-      "name": "where did you go?",
-      "release_date": "2025-07-30",
+      "name": "bad luck",
+      "release_date": "2025-09-10",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/3pctHU8ITALcpUmKyZcJfI"
+        "spotify": "https://open.spotify.com/album/78DHgUcHMwtvfQuXBolNWt"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2731fb44d503a5c004cedd3a109",
+          "url": "https://i.scdn.co/image/ab67616d0000b27335b72025a19dd584f2df554d",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e021fb44d503a5c004cedd3a109",
+          "url": "https://i.scdn.co/image/ab67616d00001e0235b72025a19dd584f2df554d",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048511fb44d503a5c004cedd3a109",
+          "url": "https://i.scdn.co/image/ab67616d0000485135b72025a19dd584f2df554d",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=bXS316P70U0"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Twenty One Pilots",
@@ -2132,62 +2134,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "Clancy",
-      "release_date": "2024-05-24",
+      "name": "Breach",
+      "release_date": "2025-09-12",
       "type": "album",
       "total_tracks": 13,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/1KFWgQTw3EMTQebaaepVBI"
+        "spotify": "https://open.spotify.com/album/1El3k8dU3sKyoGUeuyrolH"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2739cf15c7323fb85b7112197d5",
+          "url": "https://i.scdn.co/image/ab67616d0000b27378cba6a1edfe4235def632ed",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e029cf15c7323fb85b7112197d5",
+          "url": "https://i.scdn.co/image/ab67616d00001e0278cba6a1edfe4235def632ed",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048519cf15c7323fb85b7112197d5",
+          "url": "https://i.scdn.co/image/ab67616d0000485178cba6a1edfe4235def632ed",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=ozlHHR_eSxc"
+      ]
     },
     "latest_single": {
-      "name": "The Contract",
-      "release_date": "2025-06-12",
+      "name": "Drum Show",
+      "release_date": "2025-08-18",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 2,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/2VHIo87YnEergnRfHnQN3J"
+        "spotify": "https://open.spotify.com/album/2ua0DTF9uqI0AugOvNrumo"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273546ee31f03998f0f8d497eb4",
+          "url": "https://i.scdn.co/image/ab67616d0000b2739530ffdcce654b324e79ceeb",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02546ee31f03998f0f8d497eb4",
+          "url": "https://i.scdn.co/image/ab67616d00001e029530ffdcce654b324e79ceeb",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851546ee31f03998f0f8d497eb4",
+          "url": "https://i.scdn.co/image/ab67616d000048519530ffdcce654b324e79ceeb",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=QZfH7cFp3Ys"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "A Day To Remember",
@@ -2226,7 +2227,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Big Ole Album Vol. 1",
@@ -2281,7 +2282,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=TuGCBQoYOu0"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Ninja Sex Party",
@@ -2316,62 +2318,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "These Nuts",
-      "release_date": "2024-03-08",
+      "name": "Under The Covers, Vol. IV",
+      "release_date": "2025-10-10",
       "type": "album",
-      "total_tracks": 15,
+      "total_tracks": 12,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6oHkIuAt5UD6WjRz5u49GU"
+        "spotify": "https://open.spotify.com/album/37qGqumC22Ibkey11xnvHC"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273ed19a69dc52647d5fd7c09ca",
+          "url": "https://i.scdn.co/image/ab67616d0000b2731ab02b6570ef64749f4557a4",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02ed19a69dc52647d5fd7c09ca",
+          "url": "https://i.scdn.co/image/ab67616d00001e021ab02b6570ef64749f4557a4",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851ed19a69dc52647d5fd7c09ca",
+          "url": "https://i.scdn.co/image/ab67616d000048511ab02b6570ef64749f4557a4",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=T5s2OTqDiyo"
+      ]
     },
     "latest_single": {
-      "name": "Galaxy Hamster",
-      "release_date": "2024-01-26",
+      "name": "Zombie Handjob",
+      "release_date": "2025-10-17",
       "type": "single",
       "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/5o8wNqMfJxWJiStUvHmQdy"
+        "spotify": "https://open.spotify.com/album/52eLrMW4cOzivnXOwJeXS6"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738dbf15da7c2c3fe120525646",
+          "url": "https://i.scdn.co/image/ab67616d0000b273e9006ad8bdff284cd285e25f",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028dbf15da7c2c3fe120525646",
+          "url": "https://i.scdn.co/image/ab67616d00001e02e9006ad8bdff284cd285e25f",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518dbf15da7c2c3fe120525646",
+          "url": "https://i.scdn.co/image/ab67616d00004851e9006ad8bdff284cd285e25f",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=YBLuqQ_n3bg"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Memphis May Fire",
@@ -2408,7 +2409,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Shapeshifter",
@@ -2463,7 +2464,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=2Ieu6WeUAS8"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Wage War",
@@ -2501,7 +2503,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "STIGMA",
@@ -2556,7 +2558,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=EwNuMAM14bk"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Three Days Grace",
@@ -2592,34 +2595,33 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "EXPLOSIONS",
-      "release_date": "2022-05-06",
+      "name": "Alienation",
+      "release_date": "2025-08-22",
       "type": "album",
       "total_tracks": 12,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/4drZZN0HTkJzcdlPmmQyqG"
+        "spotify": "https://open.spotify.com/album/3qNCqYQyWvvgTapGWLTQsk"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738d36c72f5c80331d9ae0ea9a",
+          "url": "https://i.scdn.co/image/ab67616d0000b2733f350a0ce265fae952a2a115",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028d36c72f5c80331d9ae0ea9a",
+          "url": "https://i.scdn.co/image/ab67616d00001e023f350a0ce265fae952a2a115",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518d36c72f5c80331d9ae0ea9a",
+          "url": "https://i.scdn.co/image/ab67616d000048513f350a0ce265fae952a2a115",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=LD5twszj4B8"
+      ]
     },
     "latest_single": {
       "name": "Kill Me Fast",
@@ -2647,7 +2649,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=XM72AOmQcrc"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Bring Me The Horizon",
@@ -2686,7 +2689,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Lo-files",
@@ -2741,7 +2744,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=pwYCbAsF3EI"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "mgk",
@@ -2774,62 +2778,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "lost americana",
-      "release_date": "2025-08-08",
+      "name": "Tickets To My Downfall (All Access)",
+      "release_date": "2025-10-24",
       "type": "album",
-      "total_tracks": 13,
+      "total_tracks": 27,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/30aIA1FrouOX9kHxP4dEr6"
+        "spotify": "https://open.spotify.com/album/2AgkMlAL7P4mxNmk2wfKNE"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2735824a0cd7c2ec20c2e22b2f9",
+          "url": "https://i.scdn.co/image/ab67616d0000b27305162baf45042497f7240f8c",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e025824a0cd7c2ec20c2e22b2f9",
+          "url": "https://i.scdn.co/image/ab67616d00001e0205162baf45042497f7240f8c",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048515824a0cd7c2ec20c2e22b2f9",
+          "url": "https://i.scdn.co/image/ab67616d0000485105162baf45042497f7240f8c",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=S-oC9YVtxlU"
+      ]
     },
     "latest_single": {
-      "name": "miss sunshine",
-      "release_date": "2025-07-25",
+      "name": "cliché (Jonas Brothers remix)",
+      "release_date": "2025-11-25",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/2ww9r7d9m1Ekaal7ULY1zc"
+        "spotify": "https://open.spotify.com/album/22J6WrAyDz3ZsTqXiEGeqn"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273819a376fcd262332241a0feb",
+          "url": "https://i.scdn.co/image/ab67616d0000b2737af9b5e02a6f99b39b3bf081",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02819a376fcd262332241a0feb",
+          "url": "https://i.scdn.co/image/ab67616d00001e027af9b5e02a6f99b39b3bf081",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851819a376fcd262332241a0feb",
+          "url": "https://i.scdn.co/image/ab67616d000048517af9b5e02a6f99b39b3bf081",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=MWE9AedGhXY"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "LANDMVRKS",
@@ -2866,7 +2869,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "The Darkest Place I've Ever Been",
@@ -2921,7 +2924,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=wIaiMl4wHSE"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "The Pretty Wild",
@@ -2954,36 +2958,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
-    "latest_album": null,
-    "latest_single": {
-      "name": "living ded",
-      "release_date": "2025-07-10",
-      "type": "single",
-      "total_tracks": 3,
+    "latest_album": {
+      "name": "zero.point.genesis",
+      "release_date": "2025-11-21",
+      "type": "album",
+      "total_tracks": 11,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/5wCwl9wQC40cIh4RgTo4Ah"
+        "spotify": "https://open.spotify.com/album/3TCuGF2Cbnu9vP64Wzz30f"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738e51fa949c92a7ec2362a378",
+          "url": "https://i.scdn.co/image/ab67616d0000b273833f796a5140e7334e2143b0",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028e51fa949c92a7ec2362a378",
+          "url": "https://i.scdn.co/image/ab67616d00001e02833f796a5140e7334e2143b0",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518e51fa949c92a7ec2362a378",
+          "url": "https://i.scdn.co/image/ab67616d00004851833f796a5140e7334e2143b0",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=nHF6YGfGRM8"
-    }
+      ]
+    },
+    "latest_single": {
+      "name": "AFTERLIFE",
+      "release_date": "2025-10-16",
+      "type": "single",
+      "total_tracks": 5,
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/29EcAXVqyiawfFLxNAr7dG"
+      },
+      "images": [
+        {
+          "url": "https://i.scdn.co/image/ab67616d0000b2735269f47c8fb8c6bb4a3293ba",
+          "height": 640,
+          "width": 640
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d00001e025269f47c8fb8c6bb4a3293ba",
+          "height": 300,
+          "width": 300
+        },
+        {
+          "url": "https://i.scdn.co/image/ab67616d000048515269f47c8fb8c6bb4a3293ba",
+          "height": 64,
+          "width": 64
+        }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "BABYMETAL",
@@ -3018,7 +3047,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "METAL FORTH",
@@ -3048,32 +3077,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=6MWlBf2lhno"
     },
     "latest_single": {
-      "name": "Kon! Kon! (feat. Bloodywood)",
-      "release_date": "2025-07-11",
+      "name": "from me to u (feat. Poppy) (LIVE FROM THE O2)",
+      "release_date": "2025-10-03",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 2,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/15RUsiYzHzWFxCZqKjnW4T"
+        "spotify": "https://open.spotify.com/album/4LckKoEg0iZVm7CfzHywSE"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273b82e3d6d279c3f8d37a707ef",
+          "url": "https://i.scdn.co/image/ab67616d0000b273a0fa2a879cdb472083c7f707",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02b82e3d6d279c3f8d37a707ef",
+          "url": "https://i.scdn.co/image/ab67616d00001e02a0fa2a879cdb472083c7f707",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851b82e3d6d279c3f8d37a707ef",
+          "url": "https://i.scdn.co/image/ab67616d00004851a0fa2a879cdb472083c7f707",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=UxRldWoKlnQ"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Sleep Token",
@@ -3109,7 +3138,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Even In Arcadia",
@@ -3164,7 +3193,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=0NDqYZVbpho"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Muse",
@@ -3200,7 +3230,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Absolution XX Anniversary",
@@ -3255,7 +3285,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=jXmUJvNSSm0"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Of Mice & Men",
@@ -3293,62 +3324,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "Tether",
-      "release_date": "2023-10-06",
+      "name": "Another Miracle",
+      "release_date": "2025-11-14",
       "type": "album",
-      "total_tracks": 10,
+      "total_tracks": 12,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/7r8e3NJOBNWCznsvhN4SHR"
+        "spotify": "https://open.spotify.com/album/6Vchu5Bbi4C0nUNSprj6lD"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273f57d21c292a1550d905e21f2",
+          "url": "https://i.scdn.co/image/ab67616d0000b273544d59c2cd6d1451e05fe672",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02f57d21c292a1550d905e21f2",
+          "url": "https://i.scdn.co/image/ab67616d00001e02544d59c2cd6d1451e05fe672",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851f57d21c292a1550d905e21f2",
+          "url": "https://i.scdn.co/image/ab67616d00004851544d59c2cd6d1451e05fe672",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=X1PTMmq0bHU"
+      ]
     },
     "latest_single": {
-      "name": "Wake Up",
-      "release_date": "2025-07-10",
+      "name": "Flowers",
+      "release_date": "2025-11-10",
       "type": "single",
-      "total_tracks": 2,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/05RKwbKlZsCQFapjGm3mWa"
+        "spotify": "https://open.spotify.com/album/3RDxgXtpWHuRq0QrHFNJ71"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738d055a8ac5eeae20ce65fe6a",
+          "url": "https://i.scdn.co/image/ab67616d0000b273b0675b140d8a6c436a7c63be",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028d055a8ac5eeae20ce65fe6a",
+          "url": "https://i.scdn.co/image/ab67616d00001e02b0675b140d8a6c436a7c63be",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518d055a8ac5eeae20ce65fe6a",
+          "url": "https://i.scdn.co/image/ab67616d00004851b0675b140d8a6c436a7c63be",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=tXAc5tQ_CVc"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "A Day To Remember",
@@ -3387,7 +3417,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Big Ole Album Vol. 1",
@@ -3442,7 +3472,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=TuGCBQoYOu0"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Wind Walkers",
@@ -3478,7 +3509,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "What If I Break?",
@@ -3508,32 +3539,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=IN1RVuMkaoo"
     },
     "latest_single": {
-      "name": "Silk & Static",
-      "release_date": "2025-08-08",
+      "name": "I Don't Belong Here",
+      "release_date": "2025-10-03",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 6,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/75jOtFQtV3xOtM5PDTXf8X"
+        "spotify": "https://open.spotify.com/album/7qYZEoFXuB2AAK99y98l2N"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2738977de85121e4d3bc3cf6fb4",
+          "url": "https://i.scdn.co/image/ab67616d0000b2731e466563a1ddbe3a18c2eeb2",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e028977de85121e4d3bc3cf6fb4",
+          "url": "https://i.scdn.co/image/ab67616d00001e021e466563a1ddbe3a18c2eeb2",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048518977de85121e4d3bc3cf6fb4",
+          "url": "https://i.scdn.co/image/ab67616d000048511e466563a1ddbe3a18c2eeb2",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=GyZvTimFCgA"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Asking Alexandria",
@@ -3572,7 +3603,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Where Do We Go From Here?",
@@ -3627,7 +3658,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=m127UkvDjrA"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Set It Off",
@@ -3660,62 +3692,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "Elsewhere",
-      "release_date": "2022-03-11",
+      "name": "Set It Off",
+      "release_date": "2025-11-07",
       "type": "album",
-      "total_tracks": 16,
+      "total_tracks": 12,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/5bQTYnJyhbf2nCTpyTuTOD"
+        "spotify": "https://open.spotify.com/album/28gwagtRnT8MlpgP6sMfNX"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2733cb31fd38de756a5386c46b3",
+          "url": "https://i.scdn.co/image/ab67616d0000b273f69410d7e2a309e77b22ca26",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e023cb31fd38de756a5386c46b3",
+          "url": "https://i.scdn.co/image/ab67616d00001e02f69410d7e2a309e77b22ca26",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048513cb31fd38de756a5386c46b3",
+          "url": "https://i.scdn.co/image/ab67616d00004851f69410d7e2a309e77b22ca26",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=w3wdL4ddToI"
+      ]
     },
     "latest_single": {
-      "name": "Rotten",
-      "release_date": "2025-06-27",
+      "name": "Pathological",
+      "release_date": "2025-10-17",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 2,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/2htk7wvKEgrYDEHcSkaIIL"
+        "spotify": "https://open.spotify.com/album/4jQ1h7ngbl0iQbHt1xrKw2"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2735cca15ed06aa57b930eaae39",
+          "url": "https://i.scdn.co/image/ab67616d0000b273e5de39f207f1817ef8548b19",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e025cca15ed06aa57b930eaae39",
+          "url": "https://i.scdn.co/image/ab67616d00001e02e5de39f207f1817ef8548b19",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048515cca15ed06aa57b930eaae39",
+          "url": "https://i.scdn.co/image/ab67616d00004851e5de39f207f1817ef8548b19",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=wiKWOAKMI88"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Crown The Empire",
@@ -3752,7 +3783,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "DOGMA",
@@ -3807,7 +3838,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=mQ6DDl7zQis"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Breaking Benjamin",
@@ -3845,7 +3877,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Aurora",
@@ -3900,7 +3932,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=w0GfewGYR3g"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "NOTHING MORE",
@@ -3933,7 +3966,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "CARNAL (Deluxe)",
@@ -3963,32 +3996,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=-Lhx0yTjSac"
     },
     "latest_single": {
-      "name": "FREEFALL (feat. Chris Daughtry)",
-      "release_date": "2025-03-31",
+      "name": "WE’RE IN THIS TOGETHER",
+      "release_date": "2025-10-17",
       "type": "single",
-      "total_tracks": 1,
+      "total_tracks": 6,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/1HuOWo0S7KYLfGYhyTz5CB"
+        "spotify": "https://open.spotify.com/album/0FcdTxDTTVvr6jiSuP1Nc5"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273e30f58a3c2c22e384ce188cd",
+          "url": "https://i.scdn.co/image/ab67616d0000b2733a4614ecff7df990112bf6b3",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02e30f58a3c2c22e384ce188cd",
+          "url": "https://i.scdn.co/image/ab67616d00001e023a4614ecff7df990112bf6b3",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851e30f58a3c2c22e384ce188cd",
+          "url": "https://i.scdn.co/image/ab67616d000048513a4614ecff7df990112bf6b3",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=kcnjaDe0wNA"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Catch Your Breath",
@@ -4023,7 +4056,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Shame On Me (Deluxe Edition)",
@@ -4053,32 +4086,32 @@
       "youtube_link": "https://www.youtube.com/watch?v=4ATJkdBQL6k"
     },
     "latest_single": {
-      "name": "Ghost Inside The Shell",
-      "release_date": "2024-08-23",
+      "name": "Dark",
+      "release_date": "2025-09-26",
       "type": "single",
-      "total_tracks": 2,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6xqFGXKtI20ESDGkWtjWeB"
+        "spotify": "https://open.spotify.com/album/19T9dCuDC2IumQmi6OB1xa"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b2736797f080ec95d902586b2402",
+          "url": "https://i.scdn.co/image/ab67616d0000b27365a764a665a693fdc613362a",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e026797f080ec95d902586b2402",
+          "url": "https://i.scdn.co/image/ab67616d00001e0265a764a665a693fdc613362a",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d000048516797f080ec95d902586b2402",
+          "url": "https://i.scdn.co/image/ab67616d0000485165a764a665a693fdc613362a",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=YnoGGKq0TPU"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "The Warning",
@@ -4111,62 +4144,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "Keep Me Fed",
-      "release_date": "2024-06-28",
+      "name": "Live from Auditorio Nacional, CDMX",
+      "release_date": "2025-08-22",
       "type": "album",
-      "total_tracks": 12,
+      "total_tracks": 25,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/1rYHznqLeJVXuy0YqwERGv"
+        "spotify": "https://open.spotify.com/album/0LhKnnsC3qOLCgtlQUUGIS"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b27393c50048dce0f88071728c8c",
+          "url": "https://i.scdn.co/image/ab67616d0000b2735cda6d880ec3968aa6b6ac2f",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e0293c50048dce0f88071728c8c",
+          "url": "https://i.scdn.co/image/ab67616d00001e025cda6d880ec3968aa6b6ac2f",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d0000485193c50048dce0f88071728c8c",
+          "url": "https://i.scdn.co/image/ab67616d000048515cda6d880ec3968aa6b6ac2f",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=1lfb-280MhU"
+      ]
     },
     "latest_single": {
-      "name": "Qué Más Quieres / Sharks / Automatic Sun (Live from Auditorio Nacional, CDMX)",
-      "release_date": "2025-07-21",
+      "name": "let me burn",
+      "release_date": "2025-10-16",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/4YKEYnqb55Gw4g8uMHMKSo"
+        "spotify": "https://open.spotify.com/album/70IB9HnCvwCTm9UHXIk2YC"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273b4f21535be148103f01cc2db",
+          "url": "https://i.scdn.co/image/ab67616d0000b27336b09a1971aa0acb06d69740",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02b4f21535be148103f01cc2db",
+          "url": "https://i.scdn.co/image/ab67616d00001e0236b09a1971aa0acb06d69740",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851b4f21535be148103f01cc2db",
+          "url": "https://i.scdn.co/image/ab67616d0000485136b09a1971aa0acb06d69740",
           "height": 64,
           "width": 64
         }
-      ],
-      "youtube_link": "https://www.youtube.com/watch?v=bf9CaQB_uHc"
-    }
+      ]
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Linkin Park",
@@ -4204,7 +4236,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "From Zero (Deluxe Edition)",
@@ -4233,7 +4265,8 @@
       ],
       "youtube_link": "https://www.youtube.com/watch?v=j60zGrI-9MQ"
     },
-    "latest_single": null
+    "latest_single": null,
+    "notified_concert_ids": []
   },
   {
     "name": "Rain City Drive",
@@ -4269,7 +4302,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Things Are Different Now",
@@ -4324,7 +4357,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=4-3ddas9jKQ"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Disturbed",
@@ -4364,7 +4398,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "The Sickness (25th Anniversary Deluxe Edition)",
@@ -4419,7 +4453,8 @@
         }
       ],
       "youtube_link": "https://www.youtube.com/watch?v=9YICpjeGsbE"
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Fall Out Boy",
@@ -4455,60 +4490,61 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
-      "name": "So Much (For) Stardust",
-      "release_date": "2023-03-24",
+      "name": "From Under The Cork Tree (20th Anniversary Deluxe)",
+      "release_date": "2025-10-17",
       "type": "album",
-      "total_tracks": 14,
+      "total_tracks": 31,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/5rHd8n9uWIpq9w0PP5ZcI3"
+        "spotify": "https://open.spotify.com/album/3mcEMwTAA2eJUDsUgsdCbc"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273fd0ad203a3d2a2343d889a95",
+          "url": "https://i.scdn.co/image/ab67616d0000b273221e68c325cfc3821a2a6939",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02fd0ad203a3d2a2343d889a95",
+          "url": "https://i.scdn.co/image/ab67616d00001e02221e68c325cfc3821a2a6939",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851fd0ad203a3d2a2343d889a95",
+          "url": "https://i.scdn.co/image/ab67616d00004851221e68c325cfc3821a2a6939",
           "height": 64,
           "width": 64
         }
       ]
     },
     "latest_single": {
-      "name": "Best Friend (with Fall Out Boy)",
-      "release_date": "2024-11-28",
+      "name": "It Feels Like Christmas (Spotify Singles Holiday)",
+      "release_date": "2025-10-15",
       "type": "single",
       "total_tracks": 1,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/0rAqivu4OF9KDvqFcVdrpE"
+        "spotify": "https://open.spotify.com/album/00rjYYXmDIrf2SlTBU2vCn"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b273768e31ac2af7d92c88e7049c",
+          "url": "https://i.scdn.co/image/ab67616d0000b27384c9304d82e5bf785f9380cc",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e02768e31ac2af7d92c88e7049c",
+          "url": "https://i.scdn.co/image/ab67616d00001e0284c9304d82e5bf785f9380cc",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00004851768e31ac2af7d92c88e7049c",
+          "url": "https://i.scdn.co/image/ab67616d0000485184c9304d82e5bf785f9380cc",
           "height": 64,
           "width": 64
         }
       ]
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Pierce The Veil",
@@ -4545,7 +4581,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "The Jaws Of Life (Deluxe)",
@@ -4598,7 +4634,8 @@
           "width": 64
         }
       ]
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "TX2",
@@ -4633,7 +4670,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "99 Proof",
@@ -4662,31 +4699,32 @@
       ]
     },
     "latest_single": {
-      "name": "Hollow Frame",
-      "release_date": "2025-07-09",
+      "name": "The End of Us (feat. Black Veil Brides)",
+      "release_date": "2025-12-03",
       "type": "single",
       "total_tracks": 4,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/6g8WtaNQFNRWpAmJjn5R2y"
+        "spotify": "https://open.spotify.com/album/2PvQ3Ofy3tCB42INvo6Hst"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b27376a49573964937eb09b1625f",
+          "url": "https://i.scdn.co/image/ab67616d0000b2735925af19ca7cf393c599e711",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e0276a49573964937eb09b1625f",
+          "url": "https://i.scdn.co/image/ab67616d00001e025925af19ca7cf393c599e711",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d0000485176a49573964937eb09b1625f",
+          "url": "https://i.scdn.co/image/ab67616d000048515925af19ca7cf393c599e711",
           "height": 64,
           "width": 64
         }
       ]
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Point North",
@@ -4721,7 +4759,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "Prepare For Despair",
@@ -4750,31 +4788,32 @@
       ]
     },
     "latest_single": {
-      "name": "2 LITER SPITE",
-      "release_date": "2025-07-24",
+      "name": "DEAD 2 ME",
+      "release_date": "2025-11-20",
       "type": "single",
-      "total_tracks": 3,
+      "total_tracks": 4,
       "external_urls": {
-        "spotify": "https://open.spotify.com/album/69iRuCRfkznWMQs3yBkrGv"
+        "spotify": "https://open.spotify.com/album/2zyZS8IaYkhqLQgRzqJ93l"
       },
       "images": [
         {
-          "url": "https://i.scdn.co/image/ab67616d0000b27372157a4754fdce4995acf973",
+          "url": "https://i.scdn.co/image/ab67616d0000b273d74a90472ec0efbf9def7985",
           "height": 640,
           "width": 640
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d00001e0272157a4754fdce4995acf973",
+          "url": "https://i.scdn.co/image/ab67616d00001e02d74a90472ec0efbf9def7985",
           "height": 300,
           "width": 300
         },
         {
-          "url": "https://i.scdn.co/image/ab67616d0000485172157a4754fdce4995acf973",
+          "url": "https://i.scdn.co/image/ab67616d00004851d74a90472ec0efbf9def7985",
           "height": 64,
           "width": 64
         }
       ]
-    }
+    },
+    "notified_concert_ids": []
   },
   {
     "name": "Machine Gun Kelly",
@@ -4807,7 +4846,7 @@
         }
       ]
     },
-    "last_checked": "2025-08-09 09:00",
+    "last_checked": "2025-12-21 02:14",
     "latest_release": null,
     "latest_album": {
       "name": "No Easy Way Out",
@@ -4835,6 +4874,7 @@
         }
       ]
     },
-    "latest_single": null
+    "latest_single": null,
+    "notified_concert_ids": []
   }
 ]
