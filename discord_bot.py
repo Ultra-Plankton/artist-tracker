@@ -903,6 +903,10 @@ class MusicBot(commands.Bot):
 
         @tasks.loop(time=release_times)
         async def check_releases_scheduled():
+            now_eastern = datetime.now(tz=eastern)
+            if now_eastern.weekday() == 4 and now_eastern.hour == 9:
+                print("⏭️ Skipping the Friday 9 AM release check")
+                return
             await self.check_and_notify_releases()
         
         # Schedule weekly summary (and concerts) to run exactly at 12:05 AM Eastern Time every Friday
@@ -1248,7 +1252,9 @@ class MusicBot(commands.Bot):
                         async with sem:
                             # Add small delay between requests to avoid rate limiting
                             await asyncio.sleep(0.25)
-                            async with session.get(base_url, params=params, timeout=10) as resp:
+                            async with session.get(
+                                base_url, params=params, timeout=aiohttp.ClientTimeout(total=10)
+                            ) as resp:
                                 status = resp.status
                                 
                                 # Handle rate limiting
@@ -1372,7 +1378,9 @@ class MusicBot(commands.Bot):
                         async with sem:
                             # Add small delay between requests
                             await asyncio.sleep(0.25)
-                            async with session.get(base_url, params=params, timeout=10) as resp:
+                            async with session.get(
+                                base_url, params=params, timeout=aiohttp.ClientTimeout(total=10)
+                            ) as resp:
                                 # Handle rate limiting
                                 if resp.status == 429:
                                     retry_after = int(resp.headers.get('Retry-After', 2))
@@ -2227,7 +2235,9 @@ async def song_lookup_command(interaction: discord.Interaction, query: str):
             # Apple Music search
             apple_url = "https://itunes.apple.com/search"
             params = {'term': search_query, 'entity': 'song', 'limit': 1}
-            async with session.get(apple_url, params=params, timeout=5) as resp:
+            async with session.get(
+                apple_url, params=params, timeout=aiohttp.ClientTimeout(total=5)
+            ) as resp:
                 if resp.status == 200:
                     text = await resp.text()
                     try:
@@ -2329,7 +2339,7 @@ async def help_command(interaction: discord.Interaction):
     
     embed.add_field(
         name="📢 About Notifications",
-        value="• Use `/music setup` to enable automatic notifications in a channel\n• Releases: twice daily at 9 AM & 6 PM\n• Concerts: weekly with Friday summary (12:05 AM)\n• Weekly summaries every Friday at midnight\n• Commands work in any channel, notifications go to configured channels",
+        value="• Use `/music setup` to enable automatic notifications in a channel\n• Releases: twice daily at 9 AM & 6 PM\n• Concerts: weekly on Friday at 12:05 AM\n• Use `/music weekly` for a manual release summary\n• Commands work in any channel, notifications go to configured channels",
         inline=False
     )
     embed.set_footer(text="🔔 Bot works globally - no need to be in a specific channel!")
