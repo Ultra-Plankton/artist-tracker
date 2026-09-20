@@ -1876,7 +1876,13 @@ async def add_artist_command(interaction: discord.Interaction, artist: str):
             'latest_album': None,
             'latest_single': None
         }
-        releases_by_type = await bot.get_latest_by_type_with_retries(spotify_data['id'])
+        try:
+            releases_by_type = await bot.get_latest_by_type_with_retries(
+                spotify_data['id'], retries=1, timeout=10.0
+            ) or {}
+        except Exception as e:
+            print(f"⚠️ Could not load releases for '{spotify_data['name']}': {e}")
+            releases_by_type = {}
         if releases_by_type:
             artist_data['latest_album'] = releases_by_type.get('latest_album')
             artist_data['latest_single'] = releases_by_type.get('latest_single')

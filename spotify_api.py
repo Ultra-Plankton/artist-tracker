@@ -7,6 +7,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import config
 from datetime import datetime
+import re
+from difflib import SequenceMatcher
 
 class SpotifyAPI:
     def __init__(self):
@@ -53,23 +55,28 @@ class SpotifyAPI:
                 else:
                     # For Discord bot (non-interactive), return the best match
                     if not interactive:
-                        # Sort by name similarity first, then popularity and followers
                         def similarity_score(artist, search_term):
-                            artist_name = artist['name'].lower()
-                            search_lower = search_term.lower()
-                            
-                            # Exact match gets highest score
-                            if artist_name == search_lower:
-                                return (3, artist['popularity'], artist['followers']['total'])
-                            # Starts with search term gets high score
-                            elif artist_name.startswith(search_lower):
-                                return (2, artist['popularity'], artist['followers']['total'])
-                            # Contains search term gets medium score
-                            elif search_lower in artist_name:
-                                return (1, artist['popularity'], artist['followers']['total'])
-                            # Otherwise just use popularity and followers
-                            else:
-                                return (0, artist['popularity'], artist['followers']['total'])
+                            normalized_artist = re.sub(r"[^a-z0-9]+", " ", artist['name'].casefold()).strip()
+                            normalized_search = re.sub(r"[^a-z0-9]+", " ", search_term.casefold()).strip()
+                            artist_tokens = set(normalized_artist.split())
+                            search_tokens = set(normalized_search.split())
+                            shared_tokens = len(artist_tokens & search_tokens)
+                            sequence_similarity = SequenceMatcher(
+                                None, normalized_search, normalized_artist
+                            ).ratio()
+                            exact_match = normalized_artist == normalized_search
+                            starts_with_search = normalized_artist.startswith(normalized_search + " ")
+                            extra_tokens = max(len(artist_tokens - search_tokens), 0)
+
+                            return (
+                                exact_match,
+                                starts_with_search,
+                                shared_tokens,
+                                sequence_similarity,
+                                -extra_tokens,
+                                artist['popularity'],
+                                artist['followers']['total'],
+                            )
                         
                         artist = max(artists, key=lambda a: similarity_score(a, artist_name))
                     else:
